@@ -2,6 +2,8 @@ import random
 import string
 import os,os.path
 import cherrypy
+from hal import set_motor
+from hal import sequence
 
 class StringGenerator(object):
     @cherrypy.expose
@@ -9,7 +11,8 @@ class StringGenerator(object):
         return open(os.path.join('./public/index.html'))
     @cherrypy.expose
     def generate(self, length=8, cocktail='whiskycoca'):
-        return 'Cocktail ',cocktail,' is Coming'
+		return sequence()
+#return 'Cocktail ',cocktail,' is Coming'
 #''.join(random.sample(string.hexdigits, int(length)))
 
 if __name__ == '__main__':
