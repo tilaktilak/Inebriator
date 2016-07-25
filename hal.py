@@ -71,7 +71,7 @@ class Motor:
 		print(self.step)
 
 
-
+# Instantiate 2 motors objects
 mt_plate = Motor(3,4,500,17)
 mt_lift = Motor(27,18,4700,22)
 
@@ -180,4 +180,4 @@ def sequence():
 #set_up_down("down")
 
 
-sequence()
+#sequence()

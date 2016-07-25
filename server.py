@@ -2,8 +2,8 @@ import random
 import string
 import os,os.path
 import cherrypy
-from hal import set_angle
-from hal import sequence
+#from hal import set_angle
+#from hal import sequence
 
 class StringGenerator(object):
     @cherrypy.expose
@@ -11,8 +11,8 @@ class StringGenerator(object):
         return open(os.path.join('./public/index.html'))
     @cherrypy.expose
     def generate(self, length=8, cocktail='whiskycoca'):
-		sequence()
-		return open(os.path.join('./public/done.html'))
+	sequence()
+	return open(os.path.join('./public/done.html'))
 #return 'Cocktail ',cocktail,' is Coming'
 #''.join(random.sample(string.hexdigits, int(length)))
 

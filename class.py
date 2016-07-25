@@ -26,6 +26,7 @@ Whiskey = Ingredient('Whiskey',4,'Hard')
 
 D_Whiskey = Dose(Whiskey,1)
 D_Coca = Dose(Coca,7)
+""" Receipe is Dose Array"""
 R_Whiskey_Coca = [D_Whiskey,D_Coca]
 
 MyCup = Glass(0,0)
