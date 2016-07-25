@@ -3,6 +3,8 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+#GPIO.add_event_detect(17, GPIO.FALLING)
 
 FDC_plate = 17
 FDC_lift = 22
@@ -63,9 +65,9 @@ class Motor:
 		while(GPIO.input(self.FDC) != GPIO.LOW):
 			self.set_step(sens, 1, 0.01)
 			if abs(self.step)>self.COURSE:
-				if(sens == 0): 
+                            if(sens == 0): 
 					break
-				sens = 0
+			    sens = 0
 		self.step = 0
 		print("Motor - FDC found!")
 		print(self.step)
@@ -131,12 +133,10 @@ def step_motor(motor,delay):
 #	set_motor(1, sens, step,0.01)
 
 def set_up_down(direction):
-	nb_step = 4700
+        nb_step = 6300
 	motor = 0
 	delay = 0.001
 #	Init FDC switch
-	GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-	GPIO.add_event_detect(17, GPIO.FALLING)
 	init_motor(motor)
 	if direction == "down":
 		dire = 0
@@ -144,8 +144,9 @@ def set_up_down(direction):
 		dire = 1
 	set_motor_dir(motor,dire)
 	while (nb_step>0):
-		if GPIO.event_detected(17):
+		if direction == "down" and GPIO.input(FDC_lift)==GPIO.LOW:
 			print("Done")
+                        nb_step = 0
 		else:
 			step_motor(0,delay)
 			nb_step=nb_step - 1
@@ -163,7 +164,7 @@ def set_pwm1(angle):
 	time.sleep(3)
 	p.ChangeDutyCycle(angle)
 	time.sleep(3)
-	p.ChangeDutyCycle(10)
+	p.ChangeDutyCycle(7.5)
 	time.sleep(3)
 	p.stop()
 #	t = 0.001
@@ -175,9 +176,37 @@ def set_pwm1(angle):
 
 #VERSION BOARD RPI B REV 2 !	
 def sequence():
+        #GPIO.setup(23,GPIO.OUT)
+        #p = GPIO.PWM(23,50)
+        #p.start(7.5)
 	mt_plate.init_seq()
-	mt_plate.set_pos(-100);
+        mt_plate.set_pos(-200)
+        set_up_down("up")
+        time.sleep(5)
+        set_up_down("down")
+        time.sleep(1)
+        mt_plate.set_pos(-400)
+
+
+        #mt_lift.set_pos(10)
+        set_pwm1(11)
+        #mt_lift
+
+        
+#GPIO.cleanup()
+#GPIO.setmode(GPIO.BCM)
+set_up_down("down")
+#set_up_down("up")
+
+
+sequence()
 #set_up_down("down")
 
-
-#sequence()
+#if GPIO.event_detected(17):
+#    print "Done"
+#if GPIO.input(17)==GPIO.LOW:
+#    print "17 = LOW"
+#else:
+#    print "17 = HIGH"
+GPIO.cleanup()
+#set_pwm1(11)
