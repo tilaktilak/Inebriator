@@ -3,7 +3,8 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+print "In hal.py : Set GPIO in BCM Mode"
+#GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 #GPIO.add_event_detect(17, GPIO.FALLING)
 
 FDC_plate = 17
@@ -72,109 +73,60 @@ class Motor:
 		print("Motor - FDC found!")
 		print(self.step)
 
+        def up(self):
+            self.set_step(1,6300,0.001)
+        def down(self):
+            while(GPIO.input(self.FDC) != GPIO.LOW):
+                self.set_step(sens, 1, 0.01)
 
 # Instantiate 2 motors objects
 mt_plate = Motor(3,4,500,17)
 mt_lift = Motor(27,18,4700,22)
 
-def set_motor(motor, sens, step, delay):
-	if motor == plate:
-		STEP = 3
-		DIR = 4
-	else:
-		DIR = 27
-		STEP = 18
-	GPIO.setup(STEP, GPIO.OUT) # STEP
-	GPIO.setup(DIR, GPIO.OUT) # DIR
-# Define Sens
-	if sens == 1:
-		GPIO.output(DIR,GPIO.HIGH)
-	else:
-		GPIO.output(DIR,GPIO.LOW)
-# Do Steps
-	for i in range(0,step):
-		
-		GPIO.output(STEP,GPIO.LOW)
-		time.sleep(delay)
-		GPIO.output(STEP,GPIO.HIGH)
-		time.sleep(delay)
-#print(step)
-	GPIO.output(STEP,GPIO.LOW)
 
-def init_motor(motor):
-	if motor == 1:
-		STEP = 3
-		DIR = 4
-	else:
-		DIR = 27
-		STEP = 18
-	GPIO.setup(STEP, GPIO.OUT) # STEP
-	GPIO.setup(DIR, GPIO.OUT) # DIR
-
-def set_motor_dir(motor,dir):
-	if motor == 1:
-		DIR = 4
-	else:
-		DIR = 27
-	GPIO.output(DIR,GPIO.HIGH if (dir==1) else GPIO.LOW)
-
-def step_motor(motor,delay):
-	if motor == 1:
-		STEP = 3
-	else:
-		STEP = 18
-	GPIO.output(STEP,GPIO.LOW)
-	time.sleep(delay)
-	GPIO.output(STEP,GPIO.HIGH)
-	time.sleep(delay)
-
-#def set_angle(sens, step):
-#	motor = 1
-#	set_motor(1, sens, step,0.01)
-
-def set_up_down(direction):
-        nb_step = 6300
-	motor = 0
-	delay = 0.001
-#	Init FDC switch
-	init_motor(motor)
-	if direction == "down":
-		dire = 0
-	else:
-		dire = 1
-	set_motor_dir(motor,dire)
-	while (nb_step>0):
-		if direction == "down" and GPIO.input(FDC_lift)==GPIO.LOW:
-			print("Done")
-                        nb_step = 0
-		else:
-			step_motor(0,delay)
-			nb_step=nb_step - 1
-
-
-#	if direction=="down":
-#		set_motor(motor,0,hauteur,0.001)
-#	else :
-#		set_motor(motor,1,hauteur,0.001)
-
-def set_pwm1(angle):
+def set_pwm1(angle,quantity):
 	GPIO.setup(23,GPIO.OUT)
 	p = GPIO.PWM(23,50)
 	p.start(7.5)
 	time.sleep(3)
 	p.ChangeDutyCycle(angle)
-	time.sleep(3)
+	time.sleep(quantity)
 	p.ChangeDutyCycle(7.5)
 	time.sleep(3)
 	p.stop()
-#	t = 0.001
-#	while 1:
-#		GPIO.output(23,GPIO.HIGH)
-#		time.sleep(t)
-#		GPIO.output(23,GPIO.LOW)
-#		time.sleep(0.2-t)
 
 #VERSION BOARD RPI B REV 2 !	
+
+def init():
+    #GPIO.cleanup()
+    mt_plate.init_seq()
+    mt_lift.down()
+
+def numtoposhard(number):
+    if(1):
+        return -200
+    return 0
+
+def numtopossoft(number):
+    if(1):
+        return -400
+    return 0
+
+def give_hard(number,quantity):
+    for i in quantity:
+        mt_plate.set_pos(numtoposhard(number))
+        mt_lift.up()
+        time.sleep(5)
+        mt_lift.down()
+
+def give_soft(number, quantity):
+    mt_plate.set_pos(numtopossoft(number))
+    set_pwm1(11,quantity)
+
+def go_home():
+    mt_plate.set_pos(0)
+
+
 def sequence():
         #GPIO.setup(23,GPIO.OUT)
         #p = GPIO.PWM(23,50)
@@ -193,13 +145,7 @@ def sequence():
         #mt_lift
 
         
-#GPIO.cleanup()
-#GPIO.setmode(GPIO.BCM)
-set_up_down("down")
-#set_up_down("up")
-
-
-sequence()
+#sequence()
 #set_up_down("down")
 
 #if GPIO.event_detected(17):
@@ -208,5 +154,4 @@ sequence()
 #    print "17 = LOW"
 #else:
 #    print "17 = HIGH"
-GPIO.cleanup()
 #set_pwm1(11)
