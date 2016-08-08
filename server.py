@@ -19,7 +19,7 @@ class WebPage(object):
     @cherrypy.expose
     def generate(self, cocktail='whiskycoca'):
         print "In server.py : Asked for :" + cocktail
-        choose_cocktail(cocktail)	
+        choose_cocktail(cocktail)
 	return  self.index()
     @cherrypy.expose
     def stop(self):
