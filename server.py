@@ -5,7 +5,9 @@ import cherrypy
 from hal import set_angle
 from hal import sequence
 
-class StringGenerator(object):
+
+
+class WebPage(object):
     @cherrypy.expose
     def index(self):
         return open(os.path.join('./public/index.html'))
@@ -30,4 +32,4 @@ if __name__ == '__main__':
     cherrypy.config.update({'server.socket_port': 8090,
                         'server.socket_host':'0.0.0.0',
                         'engine.autoreload_on': False})
-    cherrypy.quickstart(StringGenerator(), '/', conf)
+    cherrypy.quickstart(WebPage(), '/', conf)

@@ -1,15 +1,19 @@
 <html>
 <head>THE INEBRIATOR</head>
 <body background='static/back.jpg'>
-<form method="get" action="generate">
-<input type="text" value="8" name="length" />
-<p>
-<select name="cocktail" id="cocktail">
-	<option value="pinacolada">Pina Colada</option>
-	<option value="whiskycoca">Whisky Coca</option>
-</select>
-</p>
-<button type="submit">Give it now!</button>
-</form>
+	<form method="post" action="generate">
+		<p>
+		<select name="cocktail" id="cocktail">
+			<option value="tequilasunrise">Tequila Sunrise</option>
+			<option value="sexonthebeach">Sex on the beach</option>
+			<option value="punchplanteur">Punch Planteur</option>
+			<option value="afterglow">After Glow (Sans Alcool)</option>
+		</select>
+		</p>
+		<button type="submit">Give it now!</button>
+	</form>
+	<form method="get" action="stop">
+		<button type="submit" > STOP ! </button>
+	</form>
 </body>
 </html>
