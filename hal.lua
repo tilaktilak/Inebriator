@@ -13,44 +13,48 @@ step_lift = 0
 lift = 0
 plate = 1
 
-Motor = {}
-Motor.__index = Motor
-
-function Motor.create(self,STEP,DIR,COURSE,FDC)
-    local self = {}
-    setmetatable(self, Motor)
-
+Motor= {STEP = 0, DIR = 0, COURSE = 0, FDC = 0, nbstep = 0, angle = 0}
+function Motor:create(o,STEP,DIR,COURSE,FDC)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
     self.STEP = STEP
     self.DIR = DIR
     self.FDC = FDC
     self.COURSE = COURSE
-    self.step = 0
+    self.nbstep = 0
     self.angle = 0
+
+
+    print("step ",STEP)
+    print("dir ",DIR)
+    print("course ",COURSE)
+    print("fdc ",FDC)
     gpio.mode(FDC, gpio.INPUT)
     gpio.mode(STEP, gpio.OUTPUT) -- STEP
     gpio.write(STEP,gpio.LOW)
     gpio.mode(DIR,  gpio.OUTPUT) -- DIR
-    return self
+    return o
 end
 
-function Motor.count(self,sens)
+function Motor:count(sens)
     if sens==1 then
-    self.step = self.step + 1
+    self.nbstep = self.nbstep + 1
     else
-    self.step = self.step - 1
+    self.nbstep = self.nbstep - 1
     end
-    print("Count",self.step)
+    print("Count",self.nbstep)
     end
 
-function Motor.check_fdc(self)
+function Motor:check_fdc()
      if (gpio.read(self.FDC)==gpio.LOW) then
-     self.step = 0
+     self.nbstep = 0
      end
 end
 
-function Motor.set_step(self, sens, step, ddelay)
+function Motor:set_step(sens, step, ddelay)
     print("Motor set step")
-    print(self.step)
+    print(self.nbstep)
     if sens == 1 then
         gpio.write(self.DIR,gpio.HIGH)
     else
@@ -59,7 +63,7 @@ function Motor.set_step(self, sens, step, ddelay)
     -- Do Steps
     mytimer = tmr.create()
     for i=0,step do
-        self.step = self.step + sens
+        self:count(sens)
         self:check_fdc()
         gpio.write(self.STEP,gpio.LOW)
         tmr.delay(ddelay*1000)
@@ -69,16 +73,17 @@ function Motor.set_step(self, sens, step, ddelay)
     end
 end
 
-function Motor.set_pos(self,angle)
-    if (angle<self.step) then
+function Motor:set_pos(angle)
+    if (angle<self.nbstep) then
         sens = 0
     else
         sens = 1
     end
-        print(self.step)
-        self:set_step(sens,abs(angle-self.step),10)
+        print(self.nbstep)
+        
+        self:set_step(sens,abs(angle-self.nbstep),10)
         print("Motor - set_angle done!")
-        print(self.step)
+        print(self.nbstep)
     end
 
 function abs(number)
@@ -89,35 +94,40 @@ function abs(number)
     end
 end
 
-function Motor.init_seq(self)
+function Motor:init_seq()
     print("Motor Init")
     sens = 1 -- First try in sens 1
     while(gpio.read(self.FDC) ~= gpio.LOW) do
-        self.set_step(sens, 1, 10)
-        if abs(self.step)>self.COURSE then
+        self:set_step(sens, 1, 10)
+        if abs(self.nbstep)>self.COURSE then
             if(sens == 0) then
                 break
             end
         end
     end
     sens = 0
-    self.step = 0
+    self.nbstep = 0
     print("Motor - FDC found")
-    print(self.step)
+    print(self.nbstep)
 end
 
-mt_plate = Motor:create(7,8,500,0)
-mt_lift = Motor:create(2,3,4700,5)
+function Motor:print()
+    print("PRINT:")
+    print(self.FDC)
+end
 
-
-
-    --VERSION BOARD RPI B REV 2 !       
-    function sequence()
-        mt_plate:init_seq()
-        mt_plate:set_pos(-100)
-        print("sequence end")
-        end
+mt_plate = Motor:create(nil,7,8,500,0)
+print("FDC :")
+mt_plate:print()
+print(mt_plate.FDC)
+mt_lift = Motor:create(nil,2,3,4700,5)
+   
+--function sequence()
+    --smt_plate:init_seq()
+    mt_plate:set_pos(-100)
+    print("sequence end")
+--end
         --set_up_down("down")
 
 print("Hi HAL.LUA")
-sequence()
+--sequence()
