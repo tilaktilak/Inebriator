@@ -72,6 +72,14 @@ function Motor:set_step(sens, step, ddelay)
     end
 end
 
+function abs(number)
+    if number>0 then 
+        return number
+    else 
+        return -number
+    end
+end
+
 function Motor:set_pos(angle)
     if (angle<self.nbstep) then
         sens = 0
@@ -82,13 +90,6 @@ function Motor:set_pos(angle)
         print("Motor - set_angle done!",self.nbstep)
     end
 
-function abs(number)
-    if number>0 then 
-        return number
-    else 
-        return -number
-    end
-end
 
 function Motor:init_seq()
     print("Motor Init")
@@ -117,7 +118,26 @@ function sequence()
     --mt_plate:set_pos(-400)
     print("sequence end")
 end
+
+function init()
+    mt_plate.init_seq()
+    mt_lift.init_seq()
+    print("Initialization OK")
         --set_up_down("down")
+end
+
+function go_home()
+    mt_plate.set_pos(0)
+    if mt_plate.step > 0 then
+        mt_plate.set_step(sens, step, ddelay)
+
+end
+
+function give_hard()
+end
+
+function give_soft()
+end
 
 print("Hi HAL.LUA")
 sequence()
