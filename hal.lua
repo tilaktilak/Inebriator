@@ -54,7 +54,6 @@ end
 
 function Motor:set_step(sens, step, ddelay)
     print("Motor set step")
-    print(self.nbstep)
     if sens == 1 then
         gpio.write(self.DIR,gpio.HIGH)
     else
@@ -78,12 +77,9 @@ function Motor:set_pos(angle)
         sens = 0
     else
         sens = 1
-    end
-        print(self.nbstep)
-        
+    end      
         self:set_step(sens,abs(angle-self.nbstep),10)
-        print("Motor - set_angle done!")
-        print(self.nbstep)
+        print("Motor - set_angle done!",self.nbstep)
     end
 
 function abs(number)
@@ -111,23 +107,17 @@ function Motor:init_seq()
     print(self.nbstep)
 end
 
-function Motor:print()
-    print("PRINT:")
-    print(self.FDC)
-end
 
 mt_plate = Motor:create(nil,7,8,500,0)
-print("FDC :")
-mt_plate:print()
-print(mt_plate.FDC)
 mt_lift = Motor:create(nil,2,3,4700,5)
    
---function sequence()
-    --smt_plate:init_seq()
-    mt_plate:set_pos(-100)
+function sequence()
+    --mt_plate:init_seq()
+    --mt_plate:set_pos(400)
+    --mt_plate:set_pos(-400)
     print("sequence end")
---end
+end
         --set_up_down("down")
 
 print("Hi HAL.LUA")
---sequence()
+sequence()
