@@ -88,15 +88,19 @@ function  choose_cocktail(cocktail_name)
     end
 end
 
-def make_cocktail(receipe):
+function make_cocktail(receipe)
     print "In make_cocktail : Will do the receipe"
     init()
-    for dose in receipe:
+    for dose in receipe do
         print " Dose : "
-        if(dose.ingredient.category == 'Hard'):
+        if(dose.ingredient.category == 'Hard') then
             give_hard(dose.ingredient.position, dose.quantity)
-        if(dose.ingredient.category == 'Soft'):
+        end
+        if(dose.ingredient.category == 'Soft') then
             give_soft(dose.ingredient.position,dose.quantity)
-        #init()
+        end        
+    end
+    #init()
     #go_home()
     init()
+ end

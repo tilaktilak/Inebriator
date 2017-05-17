@@ -120,23 +120,60 @@ function sequence()
 end
 
 function init()
-    mt_plate.init_seq()
-    mt_lift.init_seq()
+    mt_plate:init_seq()
+    mt_lift:init_seq()
     print("Initialization OK")
         --set_up_down("down")
 end
 
 function go_home()
-    mt_plate.set_pos(0)
-    if mt_plate.step > 0 then
-        mt_plate.set_step(sens, step, ddelay)
+    mt_plate.:set_pos(0)
+    if mt_plate.nbstep > 0 then
+    sens = 1
+    else 
+    sens = 0
+    end
+    while(mt_plate.nbstep < mt_plate.COURSE) do
+        mt_plate:set_step(sens, 1, 10)
+        if (gpio.read(mt_plate.FDC)==gpio.LOW) then
+            self.nbstep = 0
+            break
+        end
+    end
+    while(gpio.read(mt_lift.FDC)==gpio.LOW) do
+        mt_lift:set_step(1,1,10)
+    end
+        --self:set_step(sens,abs(angle-self.nbstep),10)
 
 end
 
-function give_hard()
+function give_hard(position,quantity)
+    if(position==1) then angle=100 end
+    if(position==2) then angle=200 end
+    if(position==3) then angle=300 end
+    if(position==4) then angle=400 end
+    mt_plate:set_pos(angle)
+    mt_lift:set_pos(4700);
+    tmr.delay(quantity*1000)
+    sleep(quantity)
+    mt_lift:set_pos(0);
 end
 
 function give_soft()
+    if(position==1) then angle=100 end
+    if(position==2) then angle=200 end
+    if(position==3) then angle=300 end
+    if(position==4) then angle=400 end
+    mt_plate:set_pos(angle)
+    -- 0.1  = +90
+    -- 0.75 = 0
+    -- 0.05 = -90
+    pwm.setup(4, 50000,0.1*1023)
+    pwm.start(4)
+    tmr.delay(quantity*1000)
+    pwm.setup(4, 50000,0.1*1023)
+    pwm.stop(4)
+
 end
 
 print("Hi HAL.LUA")
