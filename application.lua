@@ -1,6 +1,7 @@
 print("Application.lua")
-loadfile("hal.lua")
+dofile("hal.lua")
 loadfile("glass.lua")
+
 function function1()
         print("in funciton 1 Running")
 end

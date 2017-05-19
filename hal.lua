@@ -18,6 +18,10 @@ function Motor:create(o,STEP,DIR,COURSE,FDC)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
+    return o
+end
+
+function Motor:settings(STEP,DIR,COURSE,FDC)
     self.STEP = STEP
     self.DIR = DIR
     self.FDC = FDC
@@ -34,7 +38,6 @@ function Motor:create(o,STEP,DIR,COURSE,FDC)
     gpio.mode(STEP, gpio.OUTPUT) -- STEP
     gpio.write(STEP,gpio.LOW)
     gpio.mode(DIR,  gpio.OUTPUT) -- DIR
-    return o
 end
 
 function Motor:count(sens)
@@ -86,16 +89,16 @@ function Motor:set_pos(angle)
     else
         sens = 1
     end      
-        self:set_step(sens,abs(angle-self.nbstep),10)
+        self:set_step(sens,abs(angle-self.nbstep),5)
         print("Motor - set_angle done!",self.nbstep)
     end
 
 
-function Motor:init_seq()
+function Motor:init_seq(sens)
     print("Motor Init")
-    sens = 1 -- First try in sens 1
+    sens = sens or 1 -- First try in sens 1
     while(gpio.read(self.FDC) ~= gpio.LOW) do
-        self:set_step(sens, 1, 10)
+        self:set_step(sens, 1, 5)
         if abs(self.nbstep)>self.COURSE then
             if(sens == 0) then
                 break
@@ -108,9 +111,10 @@ function Motor:init_seq()
     print(self.nbstep)
 end
 
-
-mt_plate = Motor:create(nil,7,8,500,0)
-mt_lift = Motor:create(nil,2,3,4700,5)
+mt_plate = Motor:create()
+mt_plate:settings(7,8,500,0)
+mt_lift = Motor:create()
+mt_lift:settings(2,3,4700,5)
    
 function sequence()
     --mt_plate:init_seq()
@@ -121,27 +125,27 @@ end
 
 function init()
     mt_plate:init_seq()
-    mt_lift:init_seq()
+    mt_lift:init_seq(0)
     print("Initialization OK")
         --set_up_down("down")
 end
 
 function go_home()
-    mt_plate.:set_pos(0)
+    mt_plate:set_pos(0)
     if mt_plate.nbstep > 0 then
     sens = 1
     else 
     sens = 0
     end
     while(mt_plate.nbstep < mt_plate.COURSE) do
-        mt_plate:set_step(sens, 1, 10)
+        mt_plate:set_step(sens, 1, 5)
         if (gpio.read(mt_plate.FDC)==gpio.LOW) then
             self.nbstep = 0
             break
         end
     end
     while(gpio.read(mt_lift.FDC)==gpio.LOW) do
-        mt_lift:set_step(1,1,10)
+        mt_lift:set_step(1,1,5)
     end
         --self:set_step(sens,abs(angle-self.nbstep),10)
 
@@ -175,6 +179,27 @@ function give_soft()
     pwm.stop(4)
 
 end
+function test()
+    --gpio.mode(5,gpio.INPUT)
+    --gpio.mode(0,gpio.INPUT)
+    print("PLATE : ")
+    print(mt_plate.DIR)
+
+    print("LIFT : ")
+    print(mt_lift.DIR)
+    while(1) do
+        tmr.delay(1)
+        if(gpio.read(mt_plate.FDC)==gpio.LOW) then
+            print("FDC PLATE");
+        end
+        if(gpio.read(mt_lift.FDC)==gpio.LOW) then
+            print("FDC LIFT");
+        end
+    end
+end
 
 print("Hi HAL.LUA")
-sequence()
+init()
+print("while1")
+test()
+--sequence()
