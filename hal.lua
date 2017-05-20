@@ -13,7 +13,7 @@ step_lift = 0
 lift = 0
 plate = 1
 
-Motor= {STEP = 0, DIR = 0, COURSE = 0, FDC = 0, nbstep = 0, angle = 0}
+Motor= {STEP = 0, DIR = 0, COURSE = 0, FDC = 0, nbstep = 0, angle = 0, speed = 0}
 function Motor:create(o,STEP,DIR,COURSE,FDC)
     o = o or {}
     setmetatable(o, self)
@@ -21,13 +21,15 @@ function Motor:create(o,STEP,DIR,COURSE,FDC)
     return o
 end
 
-function Motor:settings(STEP,DIR,COURSE,FDC)
+function Motor:settings(STEP,DIR,COURSE,FDC,SPEED)
     self.STEP = STEP
     self.DIR = DIR
     self.FDC = FDC
     self.COURSE = COURSE
     self.nbstep = 0
     self.angle = 0
+    self.speed = SPEED
+
 
 
     print("step ",STEP)
@@ -46,7 +48,7 @@ function Motor:count(sens)
     else
     self.nbstep = self.nbstep - 1
     end
-    print("Count",self.nbstep)
+    --print("Count",self.nbstep)
     end
 
 function Motor:check_fdc()
@@ -55,8 +57,11 @@ function Motor:check_fdc()
      end
 end
 
-function Motor:set_step(sens, step, ddelay)
-    print("Motor set step")
+-- On prend des FDC tapped lorsque que le lift est proche du bas, du coup
+-- on ne va pas exactement à la consigne d'angle
+
+function Motor:set_step(check, sens, step, ddelay)
+    --print("Motor set step")
     if sens == 1 then
         gpio.write(self.DIR,gpio.HIGH)
     else
@@ -66,11 +71,13 @@ function Motor:set_step(sens, step, ddelay)
     mytimer = tmr.create()
     for i=0,step do
         self:count(sens)
-        self:check_fdc()
+        if(check==1) then
+            self:check_fdc()
+        end
         gpio.write(self.STEP,gpio.LOW)
-        tmr.delay(ddelay*1000)
+        tmr.delay(ddelay)
         gpio.write(self.STEP,gpio.HIGH)
-        tmr.delay(ddelay*1000)
+        tmr.delay(ddelay)
         gpio.write(self.STEP,gpio.LOW)
     end
 end
@@ -89,20 +96,27 @@ function Motor:set_pos(angle)
     else
         sens = 1
     end      
-        self:set_step(sens,abs(angle-self.nbstep),5)
-        print("Motor - set_angle done!",self.nbstep)
+    CHECK = 1
+    self:check_fdc()
+    if(self.nbstep == 0) then 
+        CHECK = 0 -- We are at FDC, no check
     end
+    self:set_step(CHECK,sens,abs(angle-self.nbstep),self.speed)
+    print("Motor - set_angle done!",self.nbstep)
+end
 
 
 function Motor:init_seq(sens)
     print("Motor Init")
     sens = sens or 1 -- First try in sens 1
     while(gpio.read(self.FDC) ~= gpio.LOW) do
-        self:set_step(sens, 1, 5)
+    --print(sens)
+        self:set_step(1,sens, 1, self.speed)
         if abs(self.nbstep)>self.COURSE then
             if(sens == 0) then
                 break
             end
+            sens = 0
         end
     end
     sens = 0
@@ -112,9 +126,9 @@ function Motor:init_seq(sens)
 end
 
 mt_plate = Motor:create()
-mt_plate:settings(7,8,500,0)
+mt_plate:settings(7,8,500,0,1000)
 mt_lift = Motor:create()
-mt_lift:settings(2,3,4700,5)
+mt_lift:settings(2,12,4700,5,1)
    
 function sequence()
     --mt_plate:init_seq()
@@ -138,32 +152,31 @@ function go_home()
     sens = 0
     end
     while(mt_plate.nbstep < mt_plate.COURSE) do
-        mt_plate:set_step(sens, 1, 5)
+        mt_plate:set_step(1,sens, 1, self.speed)
         if (gpio.read(mt_plate.FDC)==gpio.LOW) then
             self.nbstep = 0
             break
         end
     end
     while(gpio.read(mt_lift.FDC)==gpio.LOW) do
-        mt_lift:set_step(1,1,5)
+        mt_lift:set_step(1,1,1,self.speed)
     end
         --self:set_step(sens,abs(angle-self.nbstep),10)
 
 end
 
 function give_hard(position,quantity)
-    if(position==1) then angle=100 end
+    if(position==1) then angle=-100 end
     if(position==2) then angle=200 end
     if(position==3) then angle=300 end
     if(position==4) then angle=400 end
     mt_plate:set_pos(angle)
-    mt_lift:set_pos(4700);
-    tmr.delay(quantity*1000)
-    sleep(quantity)
+    mt_lift:set_pos(400);
+    tmr.delay(quantity*1000000)
     mt_lift:set_pos(0);
 end
 
-function give_soft()
+function give_soft(position,quantity)
     if(position==1) then angle=100 end
     if(position==2) then angle=200 end
     if(position==3) then angle=300 end
@@ -198,8 +211,6 @@ function test()
     end
 end
 
-print("Hi HAL.LUA")
+print("HAL.LUA : Initialization start")
 init()
-print("while1")
-test()
---sequence()
+print("HAL.LUA : Initialization OK")
