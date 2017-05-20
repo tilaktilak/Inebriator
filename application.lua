@@ -22,22 +22,24 @@ function receiver(client,request)
     end
     --buf = buf.."<h1> Hello, Inebriator.</h1><form src=\"/\">Turn PIN1 <select name=\"pin\" onchange=\"form.submit()\">"
     if file.open("index.html") then
-        s = file.stat("index.html")
-      --print(file.read())
+      s = file.stat("index.html")
       buf = buf..file.read(s.size)
-      print(buf)
       file.close()
     end
     local _on,_off = "",""
-    if(_GET.pin == "Cuba")then
-          _on = " selected=true"
-          gpio.write(1, gpio.HIGH)
-          print("Whiskey Coca")
-    elseif(_GET.pin == "Whiskey_Coca")then
-          _off = " selected=\"true\""
-          gpio.write(1, gpio.LOW)
-          print("Cuba Libre")
+    print(_GET.cocktail)
+    if(_GET.cocktail == "cocktail1") then
+        print("Will do coctail".._GET.cocktail)
     end
+    --if(_GET.pin == "Cuba")then
+    --      _on = " selected=true"
+    --      gpio.write(1, gpio.HIGH)
+    --      print("Whiskey Coca")
+    --elseif(_GET.pin == "Whiskey_Coca")then
+    --      _off = " selected=\"true\""
+    --      gpio.write(1, gpio.LOW)
+    --      print("Cuba Libre")
+    --end
     --buf = buf.."<option".._on..">Cuba_Libre</opton><option".._off..">Whiskey_Coca</option></select></form>"
     client:send(buf)
 end
