@@ -1,6 +1,6 @@
 print("Application.lua")
 dofile("hal.lua")
-loadfile("glass.lua")
+dofile("glass.lua")
 
 function function1()
         print("in funciton 1 Running")
@@ -30,6 +30,7 @@ function receiver(client,request)
     print(_GET.cocktail)
     if(_GET.cocktail == "cocktail1") then
         print("Will do coctail".._GET.cocktail)
+        make_cocktail(R_Whiskey_Coca)
     end
     --if(_GET.pin == "Cuba")then
     --      _on = " selected=true"

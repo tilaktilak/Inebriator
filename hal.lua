@@ -78,7 +78,7 @@ function Motor:set_step(check, sens, step, ddelay)
         tmr.delay(ddelay)
         gpio.write(self.STEP,gpio.HIGH)
         tmr.delay(ddelay)
-        gpio.write(self.STEP,gpio.LOW)
+        --gpio.write(self.STEP,gpio.LOW)
     end
 end
 
@@ -91,6 +91,9 @@ function abs(number)
 end
 
 function Motor:set_pos(angle)
+
+    print("angle:",angle)
+    print("nbstep:",self.nbstep)
     if (angle<self.nbstep) then
         sens = 0
     else
@@ -126,7 +129,7 @@ function Motor:init_seq(sens)
 end
 
 mt_plate = Motor:create()
-mt_plate:settings(7,8,500,0,1000)
+mt_plate:settings(7,8,500*8,0,50)
 mt_lift = Motor:create()
 mt_lift:settings(2,12,4700,5,1)
    
@@ -166,21 +169,23 @@ function go_home()
 end
 
 function give_hard(position,quantity)
-    if(position==1) then angle=-100 end
-    if(position==2) then angle=200 end
-    if(position==3) then angle=300 end
-    if(position==4) then angle=400 end
+    if(position==1) then angle=-100*8 end
+    if(position==2) then angle=200*8 end
+    if(position==3) then angle=300*8 end
+    if(position==4) then angle=400*8 end
+    if(position==5) then angle=500*8 end
+    if(position==6) then angle=600*8 end
     mt_plate:set_pos(angle)
-    mt_lift:set_pos(400);
+    mt_lift:set_pos(4000);
     tmr.delay(quantity*1000000)
     mt_lift:set_pos(0);
 end
 
 function give_soft(position,quantity)
-    if(position==1) then angle=100 end
-    if(position==2) then angle=200 end
-    if(position==3) then angle=300 end
-    if(position==4) then angle=400 end
+    if(position==1) then angle=100*8 end
+    if(position==2) then angle=200*8 end
+    if(position==3) then angle=300*8 end
+    if(position==4) then angle=400*8 end
     mt_plate:set_pos(angle)
     -- 0.1  = +90
     -- 0.75 = 0
@@ -213,4 +218,6 @@ end
 
 print("HAL.LUA : Initialization start")
 init()
+--give_hard(1,4)
+--give_hard(2,4)
 print("HAL.LUA : Initialization OK")
