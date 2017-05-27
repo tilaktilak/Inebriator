@@ -155,7 +155,7 @@ function go_home()
     sens = 0
     end
     while(mt_plate.nbstep < mt_plate.COURSE) do
-        mt_plate:set_step(1,sens, 1, self.speed)
+        mt_plate:set_step(1,sens, 1, mt_plate.speed)
         if (gpio.read(mt_plate.FDC)==gpio.LOW) then
             self.nbstep = 0
             break
@@ -169,31 +169,41 @@ function go_home()
 end
 
 function give_hard(position,quantity)
-    if(position==1) then angle=-100*8 end
-    if(position==2) then angle=200*8 end
-    if(position==3) then angle=300*8 end
-    if(position==4) then angle=400*8 end
-    if(position==5) then angle=500*8 end
-    if(position==6) then angle=600*8 end
+    if(position==1) then angle=420*8 end
+    if(position==2) then angle=640*8 end
+    if(position==3) then angle=880*8 end
+    if(position==4) then angle=1100*8 end
+    if(position==5) then angle=0*8 end
+    if(position==6) then angle=0*8 end
     mt_plate:set_pos(angle)
     mt_lift:set_pos(4000);
     tmr.delay(quantity*1000000)
     mt_lift:set_pos(0);
 end
 
+function set_plate(angle)
+    mt_plate:set_pos(angle)
+end
+
+function set_lift(angle)
+    mt_lift:set_pos(angle)
+end
+
+
+
 function give_soft(position,quantity)
-    if(position==1) then angle=100*8 end
-    if(position==2) then angle=200*8 end
-    if(position==3) then angle=300*8 end
-    if(position==4) then angle=400*8 end
+    if(position==1) then angle=915*8 end
+    if(position==2) then angle=1015*8 end
+    if(position==3) then angle=0*8 end
+    if(position==4) then angle=0*8 end
     mt_plate:set_pos(angle)
     -- 0.1  = +90
     -- 0.75 = 0
     -- 0.05 = -90
     pwm.setup(4, 50000,0.1*1023)
     pwm.start(4)
-    tmr.delay(quantity*1000)
-    pwm.setup(4, 50000,0.1*1023)
+    tmr.delay(quantity*1000000)
+    pwm.setup(4, 50000,0.05*1023)
     pwm.stop(4)
 
 end
@@ -216,8 +226,34 @@ function test()
     end
 end
 
+
+servo = {}
+servo.pin = 4 --this is GPIO2
+servo.value = 2000
+servo.id = "servo"
+gpio.mode(servo.pin,gpio.OUTPUT)
+gpio.write(servo.pin,gpio.LOW)
+
+function set_servo(value)
+    servo.value=value
+    print("Servo.value,",servo.value)
+    for i=0,10 do
+        gpio.write(servo.pin, gpio.HIGH)
+        tmr.delay(servo.value)
+        gpio.write(servo.pin, gpio.LOW)
+        tmr.delay(20000-servo.value)
+    end
+end
+
+function test_servo()
+
+    print("Test SERVO")
+    print("END Test SERVO")
+end
+
 print("HAL.LUA : Initialization start")
 init()
+test_servo()
 --give_hard(1,4)
 --give_hard(2,4)
 print("HAL.LUA : Initialization OK")

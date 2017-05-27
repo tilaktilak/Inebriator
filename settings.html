@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+           input[type=number], select {
+                width: 100%;
+                padding: 12px 20px;
+                margin: 8px 0;
+                display: inline-block;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-sizing: border-box;
+            }
+            input[type=submit] {
+                width: 100%;
+                background-color: #4CAF50;
+                color: white;
+                padding: 14px 20px;
+                margin: 8px 0;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            input[type=submit]:hover {
+                background-color: #45a049;
+            }
+            div {
+                width: auto;
+                max-width: 400px;
+                border-radius: 5px;
+                background-color: #f2f2f2;
+                padding: 20px;
+                font-family: Arial, Sans-serif;
+                font-size: 20px;
+            }
+            h {
+                font-family: Arial, Sans-serif;
+                font-size: 20px;
+                color: gray;
+            }
+        </style>
+    </head>
+<body>
+    <div>
+        <h>Settings</h><br>
+      <form>
+        <label>Plate Angle :</label> 
+        <input type="number" name="plate"><br />
+        <input type="submit" value="Send">
+      </form>
+      <form>
+        <label>Lift Angle :</label>
+        <input type="number" name="lift"><br />
+        <input type="submit" value="Send">
+      </form>
+      <form>
+        <input type="submit" name="init" value="Init">
+      </form>
+      <form>
+        <label>Servo :</label>
+        <input type="number" name="servo"><br />
+        <input type="submit" value="Send">
+      </form>
+    </div>
+</body>
+</html>

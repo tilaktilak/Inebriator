@@ -93,34 +93,8 @@ function emergency_stop()
     init()
 end
 
---function  choose_cocktail(cocktail_name)
---    print(("In choose_cocktail : Will prepare "..cocktail_name)
---    if(cocktail_name=="whiskycoca") then
---        make_cocktail(R_Whiskey_Coca)
---    end
---    if(cocktail_name=="cubalibre") then
---        make_cocktail(R_Cuba_Libre)
---    end
---    if(cocktail_name=="punch") then
---        make_cocktail(R_Punch)
---    end
---    if(cocktail_name=="tequilasunrise") then
---        make_cocktail(R_Tequila_Sunrise)
---    end
---    if(cocktail_name=="sexonthebeach") then
---        make_cocktail(R_Sex_On_The_Beach)
---    end
---    if(cocktail_name=="afterglow") then
---        make_cocktail(R_After_Glow)
---    end
---    if(cocktail_name=="punchplanteur") then
---        make_cocktail(R_Punch_Planteur)
---    end
---end
-
 function make_cocktail(receipe)
     print("In make_cocktail : Will do the receipe")
-    --init()
     for k,dose in pairs(receipe) do
         print(" Dose : ")
         if(dose.ingredient.category == 'Hard') then
@@ -133,14 +107,11 @@ function make_cocktail(receipe)
             give_soft(dose.ingredient.position,dose.quantity)
         end        
     end
-    --#init()
    go_home()
-   -- init()
 end
 
 function print_cocktail(receipe)
     print("In make_cocktail : Will do the receipe")
-    --init()
     for k,v in pairs(receipe) do
         print(" Dose : ")
         if(v.ingredient.category == 'Hard') then
@@ -152,9 +123,5 @@ function print_cocktail(receipe)
             print(v.ingredient.name)
         end        
     end
-    --#init()
-   -- #go_home()
-    --init()
 end
 
---print_cocktail(R_Whiskey_Coca)
