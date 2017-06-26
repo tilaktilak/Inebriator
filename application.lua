@@ -19,24 +19,41 @@ function receiver(client,request)
             _GET[k] = v
         end
     end
-    buf = buf.."Hello There"
-   -- if (path=="/settings.html") then
-   --     if file.open("settings.html") then
-   --       s = file.stat("settings.html")
-   --       buf = file.read(s.size)
-   --       file.close()
-   --     end
-   -- else
-   --     if file.open("index.html") then
-   --       s = file.stat("index.html")
-   --       buf = file.read(s.size)
-   --       file.close()
-   --     end
-   -- end
+    if (path=="/settings.html") then
+        if file.open("settings.html") then
+          local s = file.stat("settings.html")
+          buf = file.read(s.size)
+          file.close()
+        end
+    else
+        --buf = "TEST"
+        if file.open("index.html") then
+          local s = file.stat("index.html")
+          buf = file.read(s.size)
+          file.close()
+        end
+    end
     local _on,_off = "",""
     if(_GET.cocktail == "cocktail1") then
-        print("Will do coctail".._GET.cocktail)
         make_cocktail(R_Whiskey_Coca)
+    end
+    if(_GET.cocktail == "cocktail2") then
+        make_cocktail(R_Cuba_Libre)
+    end
+    if(_GET.cocktail == "cocktail3") then
+        make_cocktail(R_Punch)
+    end
+    if(_GET.cocktail == "cocktail4") then
+        make_cocktail(R_Tequila_Sunrise)
+    end
+    if(_GET.cocktail == "cocktail5") then
+        make_cocktail(R_Sex_On_The_Beach)
+    end
+    if(_GET.cocktail == "cocktail6") then
+        make_cocktail(R_Punch_Planteur)
+    end
+    if(_GET.cocktail == "cocktail7") then
+        make_cocktail(R_After_Glow)
     end
     if(_GET.plate ~= nil) then
             print("Set PLATE : ",_GET.plate)
@@ -54,16 +71,15 @@ function receiver(client,request)
             init()
     end
     client:send(buf)
-    buf = nil
+    collectgarbage()
 end
 
 function http_server()
-    srv=net.createServer(net.TCP)
+    local srv=net.createServer(net.TCP)
     srv:listen(80,function(conn)
         conn:on("receive",receiver)
         conn:on("sent", function (conn) conn:close() end)
     end)
 end
-
 
 http_server()

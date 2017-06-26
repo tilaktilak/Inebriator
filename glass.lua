@@ -20,10 +20,10 @@ Eau = Ingredient:create()
 Orange = Ingredient:create()
 Ananas = Ingredient:create()
 
-Coca:settings('Coca',1,'Soft')
+Coca:settings('Coca',0,'Soft')
 Eau:settings('Eau',7,'Soft')
-Orange:settings('Orange',2,'Soft')
-Ananas:settings('Ananas',3,'Soft')
+Orange:settings('Orange',1,'Soft')
+Ananas:settings('Ananas',2,'Soft')
 
 
 --### HARD INGREDIENT
@@ -36,8 +36,8 @@ Whiskey = Ingredient:create()
 Rhum:settings('Rhum',2,'Hard')
 Tequila:settings('Tequila',3,'Hard')
 Grenadine:settings('Grenadine',4,'Hard')
-Vodka:settings('Vodka',5,'Hard')
-Whiskey:settings('Whiskey',6,'Hard')
+Vodka:settings('Vodka',1,'Hard')
+Whiskey:settings('Whiskey',1,'Hard')
 
 
 Dose={ingredient=Coca,quantity=0}
@@ -63,7 +63,7 @@ D_Vodka = Dose:create()
 
 D_Whiskey:settings(Whiskey,5)
 D_Rhum:settings(Rhum,5)
-D_Grenadine:settings(Grenadine,0.01)
+D_Grenadine:settings(Grenadine,0.001)
 D_Tequila:settings(Tequila,5)
 D_Vodka:settings(Vodka,5)
 
@@ -76,8 +76,8 @@ D_Ananas_short = Dose:create()
 D_Coca:settings(Coca,4)
 D_Orange:settings(Orange,4)
 D_Ananas:settings(Ananas,4)
-D_Orange_short:settings(Orange,3)
-D_Ananas_short:settings(Ananas,3)
+D_Orange_short:settings(Orange,2)
+D_Ananas_short:settings(Ananas,2)
 
 --### RECEIPES
 R_Whiskey_Coca = {D_Whiskey,D_Coca}
@@ -124,4 +124,3 @@ function print_cocktail(receipe)
         end        
     end
 end
-
