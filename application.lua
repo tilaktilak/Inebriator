@@ -2,11 +2,6 @@ print("Application.lua")
 dofile("hal.lua")
 dofile("glass.lua")
 
-function function1()
-        print("in funciton 1 Running")
-end
-function1()
-
 function receiver(client,request)
     local buf = ""
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
@@ -54,6 +49,9 @@ function receiver(client,request)
     end
     if(_GET.cocktail == "cocktail7") then
         make_cocktail(R_After_Glow)
+    end
+    if(_GET.cocktail == "cocktail8") then
+        make_cocktail(R_Orange)
     end
     if(_GET.plate ~= nil) then
             print("Set PLATE : ",_GET.plate)

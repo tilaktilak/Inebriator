@@ -87,6 +87,7 @@ R_Tequila_Sunrise = {D_Grenadine,D_Tequila,D_Orange}
 R_Sex_On_The_Beach = {D_Grenadine,D_Vodka,D_Orange}
 R_Punch_Planteur = {D_Grenadine,D_Rhum,D_Orange}
 R_After_Glow = {D_Grenadine,D_Orange_short,D_Ananas_short}
+R_Orange = {D_Orange}
 
 function emergency_stop()
     print("In glass.py : Emergency STOP")
