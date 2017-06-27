@@ -1,8 +1,9 @@
 print("Application.lua")
-dofile("hal.lua")
-dofile("glass.lua")
+--dofile("hal.lua")
+--dofile("glass.lua")
 
 function receiver(client,request)
+    print("Open index.html")            
     local buf = ""
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
     if(method == nil)then
@@ -21,12 +22,27 @@ function receiver(client,request)
           file.close()
         end
     else
+        print("Open index.html")            
         --buf = "TEST"
         if file.open("index.html") then
-          local s = file.stat("index.html")
-          buf = file.read(s.size)
-          file.close()
+            function send(file)
+                local buf = file.read()
+                if(buf == nil)then
+                    print("close send")
+                    file.close()
+                    return
+                else
+                    print("send buff",buf)
+                    client:send(buf)
+                    send(file)
+                end
+            end
+            send(file)
         end
+        --  local s = file.stat("index.html")
+        --  buf = file.read(s.size)
+        --  file.close()
+        --end
     end
     local _on,_off = "",""
     if(_GET.cocktail == "cocktail1") then
@@ -68,8 +84,8 @@ function receiver(client,request)
     if(_GET.init ~= nil) then
             init()
     end
-    client:send(buf)
-    collectgarbage()
+    --client:send(buf)
+    --collectgarbage()
 end
 
 function http_server()
