@@ -2,6 +2,33 @@ print("Application.lua")
 --dofile("hal.lua")
 --dofile("glass.lua")
 
+function send_file(client, request, requested_file)
+    local max_packet_size = 500
+    if file.open(requested_file) then
+        local stat = file.stat(requested_file)
+        local s = stat.size
+        local already_sent = 0
+        function send_chunk(socket)
+            if (already_sent >= s) then
+                print("close socket")
+                client:close()
+                return
+            end
+            local buf = ""
+            if ((s - already_sent) < max_packet_size) then
+                buf = file.read(s - already_sent)
+                already_sent = s
+            else
+                buf = file.read(max_packet_size)
+                already_sent = already_sent + max_packet_size
+            end
+            --print("send chunk" .. already_sent .. "/" .. s)
+            socket:send(buf, send_chunk)
+        end
+        send_chunk(client)
+    end
+end
+
 function receiver(client,request)
     print("Open index.html")            
     local buf = ""
@@ -16,33 +43,9 @@ function receiver(client,request)
         end
     end
     if (path=="/settings.html") then
-        if file.open("settings.html") then
-          local s = file.stat("settings.html")
-          buf = file.read(s.size)
-          file.close()
-        end
+        send_file(client, request, "settings.html")
     else
-        print("Open index.html")            
-        --buf = "TEST"
-        if file.open("index.html") then
-            function send(file)
-                local buf = file.read()
-                if(buf == nil)then
-                    print("close send")
-                    file.close()
-                    return
-                else
-                    print("send buff",buf)
-                    client:send(buf)
-                    send(file)
-                end
-            end
-            send(file)
-        end
-        --  local s = file.stat("index.html")
-        --  buf = file.read(s.size)
-        --  file.close()
-        --end
+        send_file(client, request, "index.html")
     end
     local _on,_off = "",""
     if(_GET.cocktail == "cocktail1") then
@@ -84,15 +87,12 @@ function receiver(client,request)
     if(_GET.init ~= nil) then
             init()
     end
-    --client:send(buf)
-    --collectgarbage()
 end
 
 function http_server()
     local srv=net.createServer(net.TCP)
     srv:listen(80,function(conn)
         conn:on("receive",receiver)
-        conn:on("sent", function (conn) conn:close() end)
     end)
 end
 
