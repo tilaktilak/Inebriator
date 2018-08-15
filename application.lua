@@ -1,9 +1,9 @@
 print("Application.lua")
-dofile("hal.lua")
---dofile("test_hal.lua")
+--dofile("hal.lua")
+dofile("test_hal.lua")
 dofile("glass.lua")
 
-function send_file(client, request, requested_file)
+function send_file(client, request, requested_file, next_action)
     local max_packet_size = 500
     if file.open(requested_file) then
         local stat = file.stat(requested_file)
@@ -11,8 +11,7 @@ function send_file(client, request, requested_file)
         local already_sent = 0
         function send_chunk(socket)
             if (already_sent >= s) then
-                print("close socket")
-                client:close()
+                next_action()
                 return
             end
             local buf = ""
@@ -23,11 +22,39 @@ function send_file(client, request, requested_file)
                 buf = file.read(max_packet_size)
                 already_sent = already_sent + max_packet_size
             end
-            --print("send chunk" .. already_sent .. "/" .. s)
             socket:send(buf, send_chunk)
         end
         send_chunk(client)
     end
+end
+
+function send_files(client, request, requested_contents)
+    local function make_send_file_action(file_to_send, next_action)
+        local function send_file_action()
+            send_file(client, request, file_to_send, next_action)
+        end
+        return send_file_action
+    end
+    local function after_send()
+        client:close()
+        return
+    end
+    local function pile_up_send(send_actions)
+        if (table_length(requested_contents) == 0) then
+            return send_actions
+        end
+        file_to_send = table.remove(requested_contents)
+        print(file_to_send)
+        return pile_up_send(make_send_file_action(file_to_send, send_actions))
+    end
+    action = pile_up_send(after_send)
+    action()
+end
+
+serving_cocktail = false
+
+function cocktail_done()
+    serving_cocktail = false
 end
 
 function receiver(client,request)
@@ -43,19 +70,34 @@ function receiver(client,request)
             _GET[k] = v
         end
     end
+    files_to_send = {}
+    table.insert(files_to_send, "header.html")
     if (path=="/settings.html") then
-        send_file(client, request, "settings.html")
+        table.insert(files_to_send, "settings.html")
     else
-        send_file(client, request, "index.html")
+        if (serving_cocktail) then
+            table.insert(files_to_send, "already_serving_body.html")
+        end
     end
-    local _on,_off = "",""
     cocktail = _GET.cocktail
-    print('try to make cocktail ' .. cocktail)
-    if recipes[cocktail] ~= nil then
-        make_cocktail(recipes[cocktail], give_soft, give_hard, go_home)
+    if cocktail ~= nil then
+        print('try to make cocktail ' .. cocktail)
     else
-        print("Unknown cocktail")
+        table.insert(files_to_send, "default_body.html")
     end
+    if (recipes[cocktail] ~= nil and not serving_cocktail) then
+        serving_cocktail = true
+        table.insert(files_to_send, "acknowledge_service_body.html")
+        make_cocktail(recipes[cocktail], give_soft, give_hard, go_home, cocktail_done)
+    else
+        if serving_cocktail then
+            print("Already serving cocktail")
+        else
+            print("Not a coktail, maybe another order...")
+        end
+    end
+    table.insert(files_to_send, "footer.html")
+    send_files(client, request, files_to_send)
     -- if(_GET.cocktail == "cocktail1") then
     --     make_cocktail(R_Whiskey_Coca)
     -- end

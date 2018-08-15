@@ -53,6 +53,9 @@ function Dose:settings(ingredient,quantity)
 	self.quantity = quantity
 end
 
+function Dose:copy(another)
+    return Dose:create(another.ingredient, another.quantity)
+end
 
 --### DOSES
 D_Whiskey = Dose:create()
@@ -100,24 +103,55 @@ recipes["Punch_Planteur"] = R_Punch_Planteur
 recipes["After_Glow"] = R_After_Glow
 recipes["Orange"] = R_Orange
 
+function copy_recipe(recipe)
+    copy = {}
+    for i, dose in ipairs(recipe) do
+        table.insert(copy, dose)
+    end
+    return copy
+end
+
 function emergency_stop()
     print("In glass.py : Emergency STOP")
     init()
 end
 
-function make_cocktail(receipe, give_hard_dose, give_soft_dose, reset)
+function table_length(table)
+    local count = 0
+    for _ in pairs(table) do count = count + 1 end
+    return count
+end
+
+function make_cocktail(original_recipe, give_hard_dose, give_soft_dose, reset, callback)
     -- takes two function wich serve doses based on position
     -- and quantity one for hard, the other for soft
-    for k,dose in pairs(receipe) do
-        if(dose.ingredient.category == 'Hard') then
-            print(dose.ingredient.name,
-                    dose.ingredient.position,
-                    dose.quantity)
-            give_hard(dose.ingredient.position, dose.quantity)
+    -- plus a reset for the machine and a callback when done
+    recipe = copy_recipe(original_recipe)
+    local function make_cocktail_action(dose, next_actions)
+        local function cocktail_action()
+            if(dose.ingredient.category == 'Hard') then
+                give_hard_dose(dose.ingredient.position, dose.quantity, next_actions)
+            end
+            if(dose.ingredient.category == 'Soft') then
+                give_soft_dose(dose.ingredient.position,dose.quantity, next_actions)
+            end
         end
-        if(dose.ingredient.category == 'Soft') then
-            give_soft(dose.ingredient.position,dose.quantity)
-        end        
+        return cocktail_action
     end
-    reset()
+    function pile_up_recipe(next_actions)
+        print('piling...')
+        if (table_length(recipe) == 0) then
+            return next_actions
+        else
+            dose = table.remove(recipe)
+            print("pile up" .. dose.ingredient.name)
+            return pile_up_recipe(make_cocktail_action(dose, next_actions))
+        end
+    end
+    function cocktail_last_action()
+        reset()
+        callback() 
+    end
+    cocktail_execution = pile_up_recipe(cocktail_last_action)
+    cocktail_execution()
 end
