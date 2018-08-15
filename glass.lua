@@ -89,15 +89,26 @@ R_Punch_Planteur = {D_Grenadine,D_Rhum,D_Orange}
 R_After_Glow = {D_Grenadine,D_Orange_short,D_Ananas_short}
 R_Orange = {D_Orange}
 
+-- recipes map
+recipes = {}
+recipes["Whiskey_Coca"] = R_Whiskey_Coca
+recipes["Cuba_Libre"] = R_Cuba_Libre
+recipes["Punch"] = R_Punch
+recipes["Tequila_Sunrise"] = R_Tequila_Sunrise
+recipes["Sex_On_The_Beach"] = R_Sex_On_The_Beach
+recipes["Punch_Planteur"] = R_Punch_Planteur
+recipes["After_Glow"] = R_After_Glow
+recipes["Orange"] = R_Orange
+
 function emergency_stop()
     print("In glass.py : Emergency STOP")
     init()
 end
 
-function make_cocktail(receipe)
-    print("In make_cocktail : Will do the receipe")
+function make_cocktail(receipe, give_hard_dose, give_soft_dose, reset)
+    -- takes two function wich serve doses based on position
+    -- and quantity one for hard, the other for soft
     for k,dose in pairs(receipe) do
-        print(" Dose : ")
         if(dose.ingredient.category == 'Hard') then
             print(dose.ingredient.name,
                     dose.ingredient.position,
@@ -108,20 +119,5 @@ function make_cocktail(receipe)
             give_soft(dose.ingredient.position,dose.quantity)
         end        
     end
-   go_home()
-end
-
-function print_cocktail(receipe)
-    print("In make_cocktail : Will do the receipe")
-    for k,v in pairs(receipe) do
-        print(" Dose : ")
-        if(v.ingredient.category == 'Hard') then
-            print(v.ingredient.name)
-            --give_hard(dose.ingredient.position, dose.quantity)
-        end
-        if(v.ingredient.category == 'Soft') then
-            --give_soft(dose.ingredient.position,dose.quantity)
-            print(v.ingredient.name)
-        end        
-    end
+    reset()
 end

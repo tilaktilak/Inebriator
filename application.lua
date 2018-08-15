@@ -1,6 +1,7 @@
 print("Application.lua")
---dofile("hal.lua")
---dofile("glass.lua")
+dofile("hal.lua")
+--dofile("test_hal.lua")
+dofile("glass.lua")
 
 function send_file(client, request, requested_file)
     local max_packet_size = 500
@@ -48,30 +49,37 @@ function receiver(client,request)
         send_file(client, request, "index.html")
     end
     local _on,_off = "",""
-    if(_GET.cocktail == "cocktail1") then
-        make_cocktail(R_Whiskey_Coca)
+    cocktail = _GET.cocktail
+    print('try to make cocktail ' .. cocktail)
+    if recipes[cocktail] ~= nil then
+        make_cocktail(recipes[cocktail], give_soft, give_hard, go_home)
+    else
+        print("Unknown cocktail")
     end
-    if(_GET.cocktail == "cocktail2") then
-        make_cocktail(R_Cuba_Libre)
-    end
-    if(_GET.cocktail == "cocktail3") then
-        make_cocktail(R_Punch)
-    end
-    if(_GET.cocktail == "cocktail4") then
-        make_cocktail(R_Tequila_Sunrise)
-    end
-    if(_GET.cocktail == "cocktail5") then
-        make_cocktail(R_Sex_On_The_Beach)
-    end
-    if(_GET.cocktail == "cocktail6") then
-        make_cocktail(R_Punch_Planteur)
-    end
-    if(_GET.cocktail == "cocktail7") then
-        make_cocktail(R_After_Glow)
-    end
-    if(_GET.cocktail == "cocktail8") then
-        make_cocktail(R_Orange)
-    end
+    -- if(_GET.cocktail == "cocktail1") then
+    --     make_cocktail(R_Whiskey_Coca)
+    -- end
+    -- if(_GET.cocktail == "cocktail2") then
+    --     make_cocktail(R_Cuba_Libre)
+    -- end
+    -- if(_GET.cocktail == "cocktail3") then
+    --     make_cocktail(R_Punch)
+    -- end
+    -- if(_GET.cocktail == "cocktail4") then
+    --     make_cocktail(R_Tequila_Sunrise)
+    -- end
+    -- if(_GET.cocktail == "cocktail5") then
+    --     make_cocktail(R_Sex_On_The_Beach)
+    -- end
+    -- if(_GET.cocktail == "cocktail6") then
+    --     make_cocktail(R_Punch_Planteur)
+    -- end
+    -- if(_GET.cocktail == "cocktail7") then
+    --     make_cocktail(R_After_Glow)
+    -- end
+    -- if(_GET.cocktail == "cocktail8") then
+    --     make_cocktail(R_Orange)
+    -- end
     if(_GET.plate ~= nil) then
             print("Set PLATE : ",_GET.plate)
             set_plate(tonumber(_GET.plate)*8)
