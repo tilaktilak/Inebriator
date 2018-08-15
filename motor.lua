@@ -67,7 +67,6 @@ function Motor:set_step(check, sens, step, ddelay)
         gpio.write(self.DIR,gpio.LOW)
     end
     -- Do Steps
-    mytimer = tmr.create()
     for i=0,step do
         self:count(sens)
         if(check==1) then

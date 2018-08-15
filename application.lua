@@ -1,16 +1,17 @@
 print("Application.lua")
---dofile("hal.lua")
 dofile("test_hal.lua")
 dofile("glass.lua")
 
 function send_file(client, request, requested_file, next_action)
-    local max_packet_size = 500
+    local max_packet_size = 200
     if file.open(requested_file) then
+        print(requested_file)
         local stat = file.stat(requested_file)
         local s = stat.size
         local already_sent = 0
-        function send_chunk(socket)
+        local function send_chunk(socket)
             if (already_sent >= s) then
+                file.close()
                 next_action()
                 return
             end
@@ -28,7 +29,7 @@ function send_file(client, request, requested_file, next_action)
     end
 end
 
-function send_files(client, request, requested_contents)
+function send_files(client, request, requested_contents, callback)
     local function make_send_file_action(file_to_send, next_action)
         local function send_file_action()
             send_file(client, request, file_to_send, next_action)
@@ -36,7 +37,9 @@ function send_files(client, request, requested_contents)
         return send_file_action
     end
     local function after_send()
+        print("close socket")
         client:close()
+        callback()
         return
     end
     local function pile_up_send(send_actions)
@@ -44,22 +47,46 @@ function send_files(client, request, requested_contents)
             return send_actions
         end
         file_to_send = table.remove(requested_contents)
-        print(file_to_send)
         return pile_up_send(make_send_file_action(file_to_send, send_actions))
     end
-    action = pile_up_send(after_send)
+    local action = pile_up_send(after_send)
     action()
 end
 
+function send_body(client, request, body, callback)
+    local files_to_send = {}
+    table.insert(files_to_send, "header.html")
+    table.insert(files_to_send, body)
+    table.insert(files_to_send, "footer.html")
+    send_files(client, request, files_to_send, callback)
+end
+
+function send_error(client, request)
+    client:send("too many requests", function(socket)
+        socket:close()
+    end)
+end
+
 serving_cocktail = false
+nb_connection = 0
 
 function cocktail_done()
     serving_cocktail = false
 end
 
+function decrease_nb_connection()
+    print("decrease_nb_connection")
+    nb_connection = nb_connection - 1
+end
+
 function receiver(client,request)
-    print("Open index.html")            
-    local buf = ""
+    print(nb_connection)
+    if (nb_connection > 3) then
+        send_error(client, request)
+        return
+    else
+        nb_connection = nb_connection + 1
+    end
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
     if(method == nil)then
         _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
@@ -70,24 +97,25 @@ function receiver(client,request)
             _GET[k] = v
         end
     end
-    files_to_send = {}
-    table.insert(files_to_send, "header.html")
     if (path=="/settings.html") then
-        table.insert(files_to_send, "settings.html")
+        send_file(client, request, "settings.html", function()
+            client:close()
+            decrease_nb_connection()
+        end)
     else
         if (serving_cocktail) then
-            table.insert(files_to_send, "already_serving_body.html")
+            send_body(client, request, "already_serving_body.html", decrease_nb_connection)
         end
     end
     cocktail = _GET.cocktail
     if cocktail ~= nil then
         print('try to make cocktail ' .. cocktail)
     else
-        table.insert(files_to_send, "default_body.html")
+        send_body(client, request, "default_body.html", decrease_nb_connection)
     end
     if (recipes[cocktail] ~= nil and not serving_cocktail) then
         serving_cocktail = true
-        table.insert(files_to_send, "acknowledge_service_body.html")
+        send_body(client, request, "acknowledge_service_body.html", decrease_nb_connection)
         make_cocktail(recipes[cocktail], give_soft, give_hard, go_home, cocktail_done)
     else
         if serving_cocktail then
@@ -96,8 +124,6 @@ function receiver(client,request)
             print("Not a coktail, maybe another order...")
         end
     end
-    table.insert(files_to_send, "footer.html")
-    send_files(client, request, files_to_send)
     -- if(_GET.cocktail == "cocktail1") then
     --     make_cocktail(R_Whiskey_Coca)
     -- end
@@ -122,21 +148,21 @@ function receiver(client,request)
     -- if(_GET.cocktail == "cocktail8") then
     --     make_cocktail(R_Orange)
     -- end
-    if(_GET.plate ~= nil) then
-            print("Set PLATE : ",_GET.plate)
-            set_plate(tonumber(_GET.plate)*8)
-    end
-    if(_GET.lift ~= nil) then
-            print("Set LIFT:",_GET.lift)
-            set_lift(tonumber(_GET.lift))
-    end
-    if(_GET.servo ~= nil) then
-            print("Set Servo:",_GET.servo)
-            set_servo(tonumber(_GET.servo))
-    end 
-    if(_GET.init ~= nil) then
-            init()
-    end
+    -- if(_GET.plate ~= nil) then
+    --         print("Set PLATE : ",_GET.plate)
+    --         set_plate(tonumber(_GET.plate)*8)
+    -- end
+    -- if(_GET.lift ~= nil) then
+    --         print("Set LIFT:",_GET.lift)
+    --         set_lift(tonumber(_GET.lift))
+    -- end
+    -- if(_GET.servo ~= nil) then
+    --         print("Set Servo:",_GET.servo)
+    --         set_servo(tonumber(_GET.servo))
+    -- end 
+    -- if(_GET.init ~= nil) then
+    --         init()
+    -- end
 end
 
 function http_server()

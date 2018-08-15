@@ -29,8 +29,9 @@ function Motor:init_seq(sens)
     print("Motor - fake init done")
 end
 
-function Motor:set_pos(angle)
-    print("Motor set angle " .. angle)
+function Motor:set_pos(angle, next_action)
+    print("Motor set pos " .. angle)
+    next_action()
 end
 
 function Motor:set_step(check, sens, step, ddelay)

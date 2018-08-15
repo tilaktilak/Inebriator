@@ -126,7 +126,7 @@ function make_cocktail(original_recipe, give_hard_dose, give_soft_dose, reset, c
     -- takes two function wich serve doses based on position
     -- and quantity one for hard, the other for soft
     -- plus a reset for the machine and a callback when done
-    recipe = copy_recipe(original_recipe)
+    local recipe = copy_recipe(original_recipe)
     local function make_cocktail_action(dose, next_actions)
         local function cocktail_action()
             if(dose.ingredient.category == 'Hard') then
@@ -138,7 +138,7 @@ function make_cocktail(original_recipe, give_hard_dose, give_soft_dose, reset, c
         end
         return cocktail_action
     end
-    function pile_up_recipe(next_actions)
+    local function pile_up_recipe(next_actions)
         print('piling...')
         if (table_length(recipe) == 0) then
             return next_actions
@@ -148,10 +148,9 @@ function make_cocktail(original_recipe, give_hard_dose, give_soft_dose, reset, c
             return pile_up_recipe(make_cocktail_action(dose, next_actions))
         end
     end
-    function cocktail_last_action()
-        reset()
-        callback() 
+    local function cocktail_last_action()
+        reset(callback)
     end
-    cocktail_execution = pile_up_recipe(cocktail_last_action)
+    local cocktail_execution = pile_up_recipe(cocktail_last_action)
     cocktail_execution()
 end
