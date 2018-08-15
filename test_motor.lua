@@ -32,3 +32,16 @@ end
 function Motor:set_pos(angle)
     print("Motor set angle " .. angle)
 end
+
+function Motor:set_step(check, sens, step, ddelay)
+    print("Make step")
+end
+
+function Motor:check_fdc()
+    print("Check fdc")
+    return true
+end
+
+function Motor:unset_fdc()
+    print("Unset fdc")
+end

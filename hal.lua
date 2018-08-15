@@ -7,7 +7,7 @@ function go_home()
     end
     while(mt_plate.nbstep < mt_plate.COURSE) do
         mt_plate:set_step(1,sens, 1, mt_plate.speed)
-        nbstep_reset = mtplate.check_fdc()
+        nbstep_reset = mt_plate:check_fdc()
         if (nbstep_reset) then
             break
         end
