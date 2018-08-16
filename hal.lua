@@ -1,18 +1,19 @@
 function go_home(next_action)
     print("go home")
-    mt_plate:set_pos(0, function()
+    set_pos_motor(mt_plate, 0, function()
         local sens = 0
         if mt_plate.nbstep > 0 then
             sens = 1
         end
         while(mt_plate.nbstep < mt_plate.COURSE) do
-            mt_plate:set_step(1, sens, 1, mt_plate.speed)
-            local nbstep_reset = mt_plate:check_fdc()
+            set_step(mt_plate, 1, sens, 1, mt_plate.speed)
+            local nbstep_reset = check_fdc(mt_plate)
             if (nbstep_reset) then
                 break
             end
         end
-        mt_lift.unset_fdc()
+        unset_fdc(mt_lift)
+        next_action()
     end)
 end
 
@@ -25,11 +26,11 @@ function give_hard(position, quantity, next_actions)
     if(position==4) then angle=1100*8 end
     if(position==5) then angle=0*8 end
     if(position==6) then angle=0*8 end
-    mt_plate:set_pos(angle, function()
-        mt_lift:set_pos(8400, function()
+    set_pos_motor(mt_lift, angle, function()
+        set_pos_motor(mt_lift, 8400, function()
             local timer = tmr.create()
             timer:register(quantity*1000, tmr.ALARM_SINGLE, function()
-                mt_lift:set_pos(0, next_actions)
+                set_pos_motor(mt_lift, 0, next_actions)
             end)
             timer:start()
         end)
@@ -37,11 +38,11 @@ function give_hard(position, quantity, next_actions)
 end
 
 function set_plate(angle)
-    mt_plate:set_pos(angle)
+    set_pos_motor(mt_plate, angle)
 end
 
 function set_lift(angle)
-    mt_lift:set_pos(angle)
+    set_pos_motor(mt_lift, -angle)
 end
 
 function give_soft(position, quantity, next_actions)
@@ -52,7 +53,7 @@ function give_soft(position, quantity, next_actions)
     if(position==3) then angle=0*8 end
     if(position==4) then angle=0*8 end
     print("move plate")
-    mt_plate:set_pos(angle, function()
+    set_pos_motor(mt_plate, angle, function()
         print("trigger servo")
         set_servo(1800, function()
             print("wait")
@@ -96,15 +97,15 @@ end
 function init()
     -- mt_lift and mt_plate are global
     -- defined at the end of this file
-    mt_plate:init_seq()
-    mt_lift:init_seq(0)
+    init_seq(mt_plate)
+    init_seq(mt_lift, 0)
     print("Initialization OK")
 end
 
 print("HAL.LUA : Initialization start")
 
 print("Init servo")
-dofile("test_servo.lua")
+dofile("servo.lua")
 servo = {}
 servo.pin = 4 --this is GPIO2
 servo.value = 1000
@@ -113,14 +114,14 @@ gpio.mode(servo.pin,gpio.OUTPUT)
 gpio.write(servo.pin,gpio.LOW)
 
 print("Init motors")
-dofile("test_motor.lua")
+dofile("motor.lua")
 print("Init motor plate")
-mt_plate = Motor:create()
-mt_plate:settings(7,8,500*8,0,50)
+mt_plate = create_motor()
+init_motor(mt_plate,7,8,500*8,0,50*10)
 
 print("Init motor lift")
-mt_lift = Motor:create()
-mt_lift:settings(2,12,8400,5,1)
+mt_lift = create_motor()
+init_motor(mt_lift,2,12,8400,5,1)
 
 print("Global init")
 init()

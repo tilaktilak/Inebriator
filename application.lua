@@ -1,5 +1,5 @@
 print("Application.lua")
-dofile("test_hal.lua")
+dofile("hal.lua")
 dofile("glass.lua")
 
 function send_file(client, request, requested_file, next_action)
@@ -12,6 +12,7 @@ function send_file(client, request, requested_file, next_action)
         local function send_chunk(socket)
             if (already_sent >= s) then
                 file.close()
+                socket:close()
                 next_action()
                 return
             end
@@ -29,36 +30,8 @@ function send_file(client, request, requested_file, next_action)
     end
 end
 
-function send_files(client, request, requested_contents, callback)
-    local function make_send_file_action(file_to_send, next_action)
-        local function send_file_action()
-            send_file(client, request, file_to_send, next_action)
-        end
-        return send_file_action
-    end
-    local function after_send()
-        print("close socket")
-        client:close()
-        callback()
-        return
-    end
-    local function pile_up_send(send_actions)
-        if (table_length(requested_contents) == 0) then
-            return send_actions
-        end
-        file_to_send = table.remove(requested_contents)
-        return pile_up_send(make_send_file_action(file_to_send, send_actions))
-    end
-    local action = pile_up_send(after_send)
-    action()
-end
-
 function send_body(client, request, body, callback)
-    local files_to_send = {}
-    table.insert(files_to_send, "header.html")
-    table.insert(files_to_send, body)
-    table.insert(files_to_send, "footer.html")
-    send_files(client, request, files_to_send, callback)
+    send_file(client, request, body, callback)
 end
 
 function send_error(client, request)
@@ -75,94 +48,68 @@ function cocktail_done()
 end
 
 function decrease_nb_connection()
-    print("decrease_nb_connection")
     nb_connection = nb_connection - 1
+    print("node heap", node.heap())
 end
 
 function receiver(client,request)
     print(nb_connection)
-    if (nb_connection > 3) then
+    if (nb_connection >= 10000) then
         send_error(client, request)
-        return
     else
         nb_connection = nb_connection + 1
-    end
-    local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
-    if(method == nil)then
-        _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
-    end
-    local _GET = {}
-    if (vars ~= nil)then
-        for k, v in string.gmatch(vars, "(%w+)=(.+)&*") do
-            _GET[k] = v
+        local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
+        if(method == nil)then
+            _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
         end
-    end
-    if (path=="/settings.html") then
-        send_file(client, request, "settings.html", function()
-            client:close()
-            decrease_nb_connection()
-        end)
-    else
-        if (serving_cocktail) then
-            send_body(client, request, "already_serving_body.html", decrease_nb_connection)
+        local _GET = {}
+        if (vars ~= nil)then
+            for k, v in string.gmatch(vars, "(%w+)=(.+)&*") do
+                _GET[k] = v
+            end
         end
-    end
-    cocktail = _GET.cocktail
-    if cocktail ~= nil then
-        print('try to make cocktail ' .. cocktail)
-    else
-        send_body(client, request, "default_body.html", decrease_nb_connection)
-    end
-    if (recipes[cocktail] ~= nil and not serving_cocktail) then
-        serving_cocktail = true
-        send_body(client, request, "acknowledge_service_body.html", decrease_nb_connection)
-        make_cocktail(recipes[cocktail], give_soft, give_hard, go_home, cocktail_done)
-    else
-        if serving_cocktail then
-            print("Already serving cocktail")
+        if (path=="/settings.html") then
+            send_file(client, request, "settings.html", function()
+                decrease_nb_connection()
+            end)
+            return
         else
-            print("Not a coktail, maybe another order...")
+            if (serving_cocktail) then
+                send_body(client, request, "already_serving_body.html", decrease_nb_connection)
+            end
+        end
+        cocktail = _GET.cocktail
+        if cocktail ~= nil then
+            print('try to make cocktail ' .. cocktail)
+        else
+            send_body(client, request, "default_body.html", decrease_nb_connection)
+        end
+        if (recipes[cocktail] ~= nil and not serving_cocktail) then
+            serving_cocktail = true
+            send_body(client, request, "acknowledge_service_body.html", decrease_nb_connection)
+            make_cocktail(recipes[cocktail], give_soft, give_hard, go_home, cocktail_done)
+        else
+            if serving_cocktail then
+                print("Already serving cocktail")
+            else
+                if(_GET.plate ~= nil) then
+                        print("Set PLATE : ",_GET.plate)
+                        set_plate(tonumber(_GET.plate)*8)
+                end
+                if(_GET.lift ~= nil) then
+                        print("Set LIFT:",_GET.lift)
+                        set_lift(tonumber(_GET.lift))
+                end
+                if(_GET.servo ~= nil) then
+                        print("Set Servo:",_GET.servo)
+                        set_servo(tonumber(_GET.servo))
+                end 
+                if(_GET.init ~= nil) then
+                        init()
+                end
+            end
         end
     end
-    -- if(_GET.cocktail == "cocktail1") then
-    --     make_cocktail(R_Whiskey_Coca)
-    -- end
-    -- if(_GET.cocktail == "cocktail2") then
-    --     make_cocktail(R_Cuba_Libre)
-    -- end
-    -- if(_GET.cocktail == "cocktail3") then
-    --     make_cocktail(R_Punch)
-    -- end
-    -- if(_GET.cocktail == "cocktail4") then
-    --     make_cocktail(R_Tequila_Sunrise)
-    -- end
-    -- if(_GET.cocktail == "cocktail5") then
-    --     make_cocktail(R_Sex_On_The_Beach)
-    -- end
-    -- if(_GET.cocktail == "cocktail6") then
-    --     make_cocktail(R_Punch_Planteur)
-    -- end
-    -- if(_GET.cocktail == "cocktail7") then
-    --     make_cocktail(R_After_Glow)
-    -- end
-    -- if(_GET.cocktail == "cocktail8") then
-    --     make_cocktail(R_Orange)
-    -- end
-    -- if(_GET.plate ~= nil) then
-    --         print("Set PLATE : ",_GET.plate)
-    --         set_plate(tonumber(_GET.plate)*8)
-    -- end
-    -- if(_GET.lift ~= nil) then
-    --         print("Set LIFT:",_GET.lift)
-    --         set_lift(tonumber(_GET.lift))
-    -- end
-    -- if(_GET.servo ~= nil) then
-    --         print("Set Servo:",_GET.servo)
-    --         set_servo(tonumber(_GET.servo))
-    -- end 
-    -- if(_GET.init ~= nil) then
-    --         init()
-    -- end
 end
 
 function http_server()

@@ -1,54 +1,56 @@
 
-Motor= {STEP = 0, DIR = 0, COURSE = 0, FDC = 0, nbstep = 0, angle = 0, speed = 0}
-
-function Motor:create(o,STEP,DIR,COURSE,FDC)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
+function create_motor()
+    return {
+        STEP = 0, 
+        DIR = 0, 
+        COURSE = 0, 
+        FDC = 0,
+        nbstep = 0,
+        angle = 0,
+        speed = 0
+    }
 end
 
-function Motor:settings(STEP,DIR,COURSE,FDC,SPEED)
-    self.STEP = STEP
-    self.DIR = DIR
-    self.FDC = FDC
-    self.COURSE = COURSE
-    self.nbstep = 0
-    self.angle = 0
-    self.speed = SPEED
+function init_motor(motor, STEP,DIR,COURSE,FDC,SPEED)
+    motor.STEP = STEP
+    motor.DIR = DIR
+    motor.FDC = FDC
+    motor.COURSE = COURSE
+    motor.nbstep = 0
+    motor.angle = 0
+    motor.speed = SPEED
     print("step ",STEP)
     print("dir ",DIR)
     print("course ",COURSE)
     print("fdc ",FDC)
     gpio.mode(FDC, gpio.INPUT)
     gpio.mode(STEP, gpio.OUTPUT) -- STEP
-    gpio.write(STEP,gpio.LOW)
+    gpio.write(STEP, gpio.LOW)
     gpio.mode(DIR,  gpio.OUTPUT) -- DIR
 end
 
-function Motor:count(sens)
+function motor_count(motor, sens)
     if sens==1 then
-    self.nbstep = self.nbstep + 1
+        motor.nbstep = motor.nbstep + 1
     else
-    self.nbstep = self.nbstep - 1
+        motor.nbstep = motor.nbstep - 1
     end
-    --print("Count",self.nbstep)
 end
 
 -- On prend des FDC tapped lorsque que le lift est proche du bas, du coup
 -- on ne va pas exactement à la consigne d'angle
-function Motor:check_fdc()
-    if (gpio.read(self.FDC)==gpio.LOW) then
-        self.nbstep = 0
+function check_fdc_motor(motor)
+    if (gpio.read(motor.FDC)==gpio.LOW) then
+        motor.nbstep = 0
         return true
     else
         return false
     end
 end
 
-function Motor:unset_fdc()
-    while(gpio.read(self.FDC)==gpio.LOW) do
-        self.set_step(1,1,1,self.speed)
+function unset_fdc(motor)
+    while(gpio.read(motor.FDC)==gpio.LOW) do
+        motor.set_step(1,1,1,motor.speed)
     end
 end
 
@@ -60,49 +62,50 @@ function abs(number)
     end
 end
 
-function Motor:set_step(check, sens, step, ddelay)
+function set_step(motor, check, sens, step, ddelay)
     if sens == 1 then
-        gpio.write(self.DIR,gpio.HIGH)
+        gpio.write(motor.DIR,gpio.HIGH)
     else
-        gpio.write(self.DIR,gpio.LOW)
+        gpio.write(motor.DIR,gpio.LOW)
     end
     -- Do Steps
     for i=0,step do
-        self:count(sens)
+        motor_count(motor, sens)
         if(check==1) then
-            self:check_fdc()
+            check_fdc_motor(motor)
         end
-        gpio.write(self.STEP,gpio.LOW)
+        gpio.write(motor.STEP,gpio.LOW)
         tmr.delay(ddelay)
-        gpio.write(self.STEP,gpio.HIGH)
+        gpio.write(motor.STEP,gpio.HIGH)
         tmr.delay(ddelay)
     end
 end
 
-function Motor:set_pos(angle)
+function set_pos_motor(motor, angle, next_action)
     print("angle:",angle)
-    print("nbstep:",self.nbstep)
-    if (angle<self.nbstep) then
+    print("nbstep:",motor.nbstep)
+    if (angle < motor.nbstep) then
         sens = 0
     else
         sens = 1
-    end      
+    end     
     CHECK = 1
-    self:check_fdc()
-    if(self.nbstep == 0) then 
+    check_fdc_motor(motor)
+    if(motor.nbstep == 0) then 
         CHECK = 0 -- We are at FDC, no check
     end
-    self:set_step(CHECK,sens,abs(angle-self.nbstep),self.speed)
-    print("Motor - set_angle done!",self.nbstep)
+    set_step(motor, CHECK,sens,abs(angle-motor.nbstep),motor.speed)
+    print("Motor - set_angle done!",motor.nbstep)
+    next_action()
 end
 
-function Motor:init_seq(sens)
+function init_seq(motor, sens)
     print("Motor Init")
-    sens = sens or 1 -- First try in sens 1
-    while(gpio.read(self.FDC) ~= gpio.LOW) do
+    local sens = sens or 1 -- First try in sens 1
+    while(gpio.read(motor.FDC) ~= gpio.LOW) do
     --print(sens)
-        self:set_step(1,sens, 1, self.speed)
-        if abs(self.nbstep)>self.COURSE then
+        set_step(motor, 1,sens, 1, motor.speed)
+        if abs(motor.nbstep)>motor.COURSE then
             if(sens == 0) then
                 break
             end
@@ -110,7 +113,7 @@ function Motor:init_seq(sens)
         end
     end
     sens = 0
-    self.nbstep = 0
+    motor.nbstep = 0
     print("Motor - FDC found")
-    print(self.nbstep)
+    print(motor.nbstep)
 end

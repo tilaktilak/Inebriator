@@ -1,107 +1,62 @@
 
-Ingredient= {name='unknown',position=0,category='unknown'}
-function Ingredient:create(o,name,position,category)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
+Ingredient = {}
+
+function create_ingredient(name, position, category)
+    return {
+       name=name,
+       position=position,
+       category=category
+    }
 end
 
-function Ingredient:settings(name,position,category)
-	self.name = name
-    self.position = position
-	self.category = category
+-- SOFT INGREDIENT
+Coca = create_ingredient('Coca',0,'Soft')
+Eau = create_ingredient('Eau',7,'Soft')
+Orange = create_ingredient('Orange',1,'Soft')
+Ananas = create_ingredient('Ananas',2,'Soft')
+
+-- HARD INGREDIENT
+Rhum = create_ingredient('Rhum',2,'Hard')
+Tequila = create_ingredient('Tequila',3,'Hard')
+Grenadine = create_ingredient('Grenadine',4,'Hard')
+Vodka = create_ingredient('Vodka',1,'Hard')
+Whiskey = create_ingredient('Whiskey',1,'Hard')
+
+Dose = {}
+
+function create_dose(ingredient,quantity)
+    return {
+	    ingredient = ingredient,
+	    quantity = quantity
+    }
 end
 
-
---### SOFT INGREDIENT
-Coca = Ingredient:create()
-Eau = Ingredient:create()
-Orange = Ingredient:create()
-Ananas = Ingredient:create()
-
-Coca:settings('Coca',0,'Soft')
-Eau:settings('Eau',7,'Soft')
-Orange:settings('Orange',1,'Soft')
-Ananas:settings('Ananas',2,'Soft')
-
-
---### HARD INGREDIENT
-Rhum = Ingredient:create()
-Tequila = Ingredient:create()
-Grenadine = Ingredient:create()
-Vodka = Ingredient:create()
-Whiskey = Ingredient:create()
-
-Rhum:settings('Rhum',2,'Hard')
-Tequila:settings('Tequila',3,'Hard')
-Grenadine:settings('Grenadine',4,'Hard')
-Vodka:settings('Vodka',1,'Hard')
-Whiskey:settings('Whiskey',1,'Hard')
-
-
-Dose={ingredient=Coca,quantity=0}
-function Dose:create(o,ingredient,quantity)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
+function copy_dose(another)
+    return create_dose(another.ingredient, another.quantity)
 end
 
-function Dose:settings(ingredient,quantity)
-	self.ingredient = ingredient
-	self.quantity = quantity
-end
+-- doses
+D_Rhum = create_dose(Rhum,5)
+D_Grenadine = create_dose(Grenadine,0.001)
+D_Tequila = create_dose(Tequila,5)
+D_Vodka = create_dose(Vodka,5)
 
-function Dose:copy(another)
-    return Dose:create(another.ingredient, another.quantity)
-end
-
---### DOSES
-D_Whiskey = Dose:create()
-D_Rhum = Dose:create()
-D_Grenadine = Dose:create()
-D_Tequila = Dose:create()
-D_Vodka = Dose:create()
-
-D_Whiskey:settings(Whiskey,5)
-D_Rhum:settings(Rhum,5)
-D_Grenadine:settings(Grenadine,0.001)
-D_Tequila:settings(Tequila,5)
-D_Vodka:settings(Vodka,5)
-
-D_Coca = Dose:create()
-D_Orange = Dose:create()
-D_Ananas = Dose:create()
-D_Orange_short = Dose:create()
-D_Ananas_short = Dose:create()
-
-D_Coca:settings(Coca,4)
-D_Orange:settings(Orange,4)
-D_Ananas:settings(Ananas,4)
-D_Orange_short:settings(Orange,2)
-D_Ananas_short:settings(Ananas,2)
-
---### RECEIPES
-R_Whiskey_Coca = {D_Whiskey,D_Coca}
-R_Cuba_Libre = {D_Rhum,D_Coca}
-R_Punch = {D_Rhum,D_Orange}
-R_Tequila_Sunrise = {D_Grenadine,D_Tequila,D_Orange}
-R_Sex_On_The_Beach = {D_Grenadine,D_Vodka,D_Orange}
-R_Punch_Planteur = {D_Grenadine,D_Rhum,D_Orange}
-R_After_Glow = {D_Grenadine,D_Orange_short,D_Ananas_short}
-R_Orange = {D_Orange}
+D_Coca = create_dose(Coca,4)
+D_Orange = create_dose(Orange,4)
+D_Ananas = create_dose(Ananas,4)
+D_Orange_short = create_dose(Orange,2)
+D_Ananas_short = create_dose(Ananas,2)
 
 -- recipes map
 recipes = {}
-recipes["Whiskey_Coca"] = R_Whiskey_Coca
-recipes["Cuba_Libre"] = R_Cuba_Libre
-recipes["Punch"] = R_Punch
-recipes["Tequila_Sunrise"] = R_Tequila_Sunrise
-recipes["Sex_On_The_Beach"] = R_Sex_On_The_Beach
-recipes["Punch_Planteur"] = R_Punch_Planteur
-recipes["After_Glow"] = R_After_Glow
-recipes["Orange"] = R_Orange
+recipes["Whiskey_Coca"] = {D_Whiskey, D_Coca}
+recipes["Cuba_Libre"] = {D_Rhum, D_Coca}
+recipes["Punch"] = {D_Rhum, D_Orange}
+recipes["Tequila_Sunrise"] = {D_Grenadine, D_Tequila, D_Orange}
+recipes["Sex_On_The_Beach"] = {D_Grenadine, D_Vodka, D_Orange}
+recipes["Punch_Planteur"] = {D_Grenadine, D_Rhum, D_Orange}
+recipes["After_Glow"] = {D_Grenadine, D_Orange_short, D_Ananas_short}
+recipes["Orange"] = {D_Orange}
 
 function copy_recipe(recipe)
     copy = {}
