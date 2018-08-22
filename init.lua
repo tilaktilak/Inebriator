@@ -2,7 +2,7 @@
 dofile("credentials.lua")
 
 function startup()
-    dofile("application.lua")
+    dofile("application.lc")
 end
 
 print("Connecting to WiFi access point...")

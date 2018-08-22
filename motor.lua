@@ -1,9 +1,9 @@
 
 function create_motor()
     return {
-        STEP = 0, 
-        DIR = 0, 
-        COURSE = 0, 
+        STEP = 0,
+        DIR = 0,
+        COURSE = 0,
         FDC = 0,
         nbstep = 0,
         angle = 0,
@@ -55,9 +55,9 @@ function unset_fdc(motor)
 end
 
 function abs(number)
-    if number>0 then 
+    if number>0 then
         return number
-    else 
+    else
         return -number
     end
 end
@@ -82,16 +82,16 @@ function set_step(motor, check, sens, step, ddelay)
 end
 
 function set_pos_motor(motor, angle, next_action)
-    print("angle:",angle)
-    print("nbstep:",motor.nbstep)
+    print("Set pos motor angle:",angle)
+    print("Set pos motor nbstep:",motor.nbstep)
     if (angle < motor.nbstep) then
         sens = 0
     else
         sens = 1
-    end     
+    end
     CHECK = 1
     check_fdc_motor(motor)
-    if(motor.nbstep == 0) then 
+    if(motor.nbstep == 0) then
         CHECK = 0 -- We are at FDC, no check
     end
     set_step(motor, CHECK,sens,abs(angle-motor.nbstep),motor.speed)

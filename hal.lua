@@ -20,14 +20,14 @@ end
 function give_hard(position, quantity, next_actions)
     print("serve hard " .. position .. " " .. quantity)
     local angle = 0
-    if(position==1) then angle=410*8 end
-    if(position==2) then angle=640*8 end
-    if(position==3) then angle=880*8 end
-    if(position==4) then angle=1100*8 end
+    if(position==1) then angle=410*4 end
+    if(position==2) then angle=640*4 end
+    if(position==3) then angle=880*4 end
+    if(position==4) then angle=1100*4 end
     if(position==5) then angle=0*8 end
     if(position==6) then angle=0*8 end
-    set_pos_motor(mt_lift, angle, function()
-        set_pos_motor(mt_lift, 8400, function()
+    set_pos_motor(mt_plate, angle, function()
+        set_pos_motor(mt_lift, 2000, function()
             local timer = tmr.create()
             timer:register(quantity*1000, tmr.ALARM_SINGLE, function()
                 set_pos_motor(mt_lift, 0, next_actions)
@@ -38,11 +38,11 @@ function give_hard(position, quantity, next_actions)
 end
 
 function set_plate(angle)
-    set_pos_motor(mt_plate, angle)
+    set_pos_motor(mt_plate, angle, function() print("set plate") end)
 end
 
 function set_lift(angle)
-    set_pos_motor(mt_lift, -angle)
+    set_pos_motor(mt_lift, angle, function() print("set_lift") end)
 end
 
 function give_soft(position, quantity, next_actions)
@@ -108,7 +108,7 @@ print("Init servo")
 dofile("servo.lua")
 servo = {}
 servo.pin = 4 --this is GPIO2
-servo.value = 1000
+servo.value = 1800
 servo.id = "servo"
 gpio.mode(servo.pin,gpio.OUTPUT)
 gpio.write(servo.pin,gpio.LOW)
@@ -117,15 +117,34 @@ print("Init motors")
 dofile("motor.lua")
 print("Init motor plate")
 mt_plate = create_motor()
-init_motor(mt_plate,7,8,500*8,0,50*10)
+init_motor(mt_plate,7,8,500*4,0,1)
 
-print("Init motor lift")
+--init_seq(mt_plate)
+
+--print("Init motor lift")
 mt_lift = create_motor()
-init_motor(mt_lift,2,12,8400,5,1)
+init_motor(mt_lift,2,12,7000,5,1)
+--init_seq(mt_lift,0)
+-- MOTEUR PLATE
+-- Noix moteur : 9 dents
+-- Plateau : 64 dents
+-- 64 / 9 = 7.11 rapport de réduction
+-- 200 / tours
+-- 200*7,11*4 = 5688
+--
+-- MOTEUR LIFT
+-- Pas plus de 30*200 pas
 
 print("Global init")
-init()
+--init()
 set_servo(1000, function()
     print("global init done")
 end)
 print("HAL.LUA : Initialization OK")
+
+--set_pos_motor(mt_lift, 4000, function() print("End") end)
+--set_servo(1000, function()    print("global init done")end)
+--set_pos_motor(mt_plate, 410*4, function() print("End") end)
+--set_servo(1800, function()    print("global init done")end)
+--tmr.delay(3000000)
+--set_servo(1000, function()    print("global init done")end)
