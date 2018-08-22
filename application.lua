@@ -1,6 +1,6 @@
 print("Application.lua")
 dofile("hal.lua")
-dofile("glass.lua")
+dofile("glass.lc")
 
 function send_file(client, request, requested_file, next_action)
     local max_packet_size = 200
@@ -72,6 +72,21 @@ function receiver(client,request)
             send_file(client, request, "settings.html", function()
                 decrease_nb_connection()
             end)
+            if(_GET.plate ~= nil) then
+                    print("Set PLATE : ",_GET.plate)
+                    set_plate(tonumber(_GET.plate)*4,function() print("plate")end)
+            end
+            if(_GET.lift ~= nil) then
+                    print("Set LIFT:",_GET.lift)
+                    set_lift(tonumber(_GET.lift),function() print("lift") end)
+            end
+            if(_GET.servo ~= nil) then
+                    print("Set Servo:",_GET.servo)
+                    set_servo(tonumber(_GET.servo),function() print("servo")end)
+            end
+            if(_GET.init ~= nil) then
+                    init()
+            end
             return
         else
             if (serving_cocktail) then
@@ -92,21 +107,6 @@ function receiver(client,request)
             if serving_cocktail then
                 print("Already serving cocktail")
             else
-                if(_GET.plate ~= nil) then
-                        print("Set PLATE : ",_GET.plate)
-                        set_plate(tonumber(_GET.plate)*8)
-                end
-                if(_GET.lift ~= nil) then
-                        print("Set LIFT:",_GET.lift)
-                        set_lift(tonumber(_GET.lift))
-                end
-                if(_GET.servo ~= nil) then
-                        print("Set Servo:",_GET.servo)
-                        set_servo(tonumber(_GET.servo))
-                end 
-                if(_GET.init ~= nil) then
-                        init()
-                end
             end
         end
     end
