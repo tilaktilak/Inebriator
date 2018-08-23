@@ -10,17 +10,17 @@ function create_ingredient(name, position, category)
 end
 
 -- SOFT INGREDIENT
-Coca = create_ingredient('Coca',0,'Soft')
+Coca = create_ingredient('Coca',3,'Soft')
 Eau = create_ingredient('Eau',7,'Soft')
 Orange = create_ingredient('Orange',1,'Soft')
 Ananas = create_ingredient('Ananas',2,'Soft')
 
 -- HARD INGREDIENT
+Vodka = create_ingredient('Vodka',1,'Hard')
 Rhum = create_ingredient('Rhum',2,'Hard')
 Tequila = create_ingredient('Tequila',3,'Hard')
 Grenadine = create_ingredient('Grenadine',4,'Hard')
-Vodka = create_ingredient('Vodka',1,'Hard')
-Whiskey = create_ingredient('Whiskey',1,'Hard')
+Whiskey = create_ingredient('Whiskey',5,'Hard')
 
 Dose = {}
 
@@ -84,6 +84,7 @@ function make_cocktail(original_recipe, give_hard_dose, give_soft_dose, reset, c
     local recipe = copy_recipe(original_recipe)
     local function make_cocktail_action(dose, next_actions)
         local function cocktail_action()
+	    print("Cocktail Action : "..dose.ingredient.name .. dose.ingredient.category)
             if(dose.ingredient.category == 'Hard') then
                 give_hard_dose(dose.ingredient.position, dose.quantity, next_actions)
             end

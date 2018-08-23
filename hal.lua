@@ -7,7 +7,7 @@ function go_home(next_action)
         end
         while(mt_plate.nbstep < mt_plate.COURSE) do
             set_step(mt_plate, 1, sens, 1, mt_plate.speed)
-            local nbstep_reset = check_fdc(mt_plate)
+            local nbstep_reset = check_fdc_motor(mt_plate)
             if (nbstep_reset) then
                 break
             end
@@ -20,12 +20,13 @@ end
 function give_hard(position, quantity, next_actions)
     print("serve hard " .. position .. " " .. quantity)
     local angle = 0
-    if(position==1) then angle=410*4 end
-    if(position==2) then angle=640*4 end
-    if(position==3) then angle=880*4 end
-    if(position==4) then angle=1100*4 end
-    if(position==5) then angle=0*8 end
-    if(position==6) then angle=0*8 end
+    if(position==1) then angle=415 end
+    if(position==2) then angle=490 end
+    if(position==3) then angle=655 end
+    if(position==4) then angle=725 end
+    if(position==5) then angle=895 end
+    if(position==6) then angle=965 end
+    angle = angle * 4
     set_pos_motor(mt_plate, angle, function()
         set_pos_motor(mt_lift, 2000, function()
             local timer = tmr.create()
@@ -48,13 +49,16 @@ end
 function give_soft(position, quantity, next_actions)
     print("serve soft " .. position .. " " .. quantity)
     local angle = 0
-    if(position==1) then angle=915*8 end
-    if(position==2) then angle=1015*8 end
-    if(position==3) then angle=0*8 end
-    if(position==4) then angle=0*8 end
-    print("move plate")
+    if(position==1) then angle=415 end
+    if(position==2) then angle=490 end
+    if(position==3) then angle=655 end
+    if(position==4) then angle=725 end
+    if(position==5) then angle=895 end
+    if(position==6) then angle=965 end
+    if(position==7) then angle=1130 end
+    if(position==8) then angle=1205 end
+    angle = angle * 4
     set_pos_motor(mt_plate, angle, function()
-        print("trigger servo")
         set_servo(1800, function()
             print("wait")
             local timer = tmr.create()
@@ -74,26 +78,6 @@ function give_soft(position, quantity, next_actions)
     --pwm.setup(4, 50000,0.05*1023)
     --pwm.stop(4)
 end
-
-function test()
-    --gpio.mode(5,gpio.INPUT)
-    --gpio.mode(0,gpio.INPUT)
-    print("PLATE : ")
-    print(mt_plate.DIR)
-
-    print("LIFT : ")
-    print(mt_lift.DIR)
-    while(1) do
-        tmr.delay(1)
-        if(gpio.read(mt_plate.FDC)==gpio.LOW) then
-            print("FDC PLATE");
-        end
-        if(gpio.read(mt_lift.FDC)==gpio.LOW) then
-            print("FDC LIFT");
-        end
-    end
-end
-
 function init()
     -- mt_lift and mt_plate are global
     -- defined at the end of this file
@@ -115,13 +99,9 @@ gpio.write(servo.pin,gpio.LOW)
 
 print("Init motors")
 dofile("motor.lua")
-print("Init motor plate")
+
 mt_plate = create_motor()
 init_motor(mt_plate,7,8,500*4,0,1)
-
---init_seq(mt_plate)
-
---print("Init motor lift")
 mt_lift = create_motor()
 init_motor(mt_lift,2,12,7000,5,1)
 --init_seq(mt_lift,0)
@@ -136,15 +116,8 @@ init_motor(mt_lift,2,12,7000,5,1)
 -- Pas plus de 30*200 pas
 
 print("Global init")
---init()
+init()
 set_servo(1000, function()
     print("global init done")
 end)
 print("HAL.LUA : Initialization OK")
-
---set_pos_motor(mt_lift, 4000, function() print("End") end)
---set_servo(1000, function()    print("global init done")end)
---set_pos_motor(mt_plate, 410*4, function() print("End") end)
---set_servo(1800, function()    print("global init done")end)
---tmr.delay(3000000)
---set_servo(1000, function()    print("global init done")end)

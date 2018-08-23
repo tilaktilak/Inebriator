@@ -50,7 +50,7 @@ end
 
 function unset_fdc(motor)
     while(gpio.read(motor.FDC)==gpio.LOW) do
-        motor.set_step(1,1,1,motor.speed)
+        set_step(motor,1,1,1,motor.speed)
     end
 end
 

@@ -102,7 +102,7 @@ function receiver(client,request)
         if (recipes[cocktail] ~= nil and not serving_cocktail) then
             serving_cocktail = true
             send_body(client, request, "acknowledge_service_body.html", decrease_nb_connection)
-            make_cocktail(recipes[cocktail], give_soft, give_hard, go_home, cocktail_done)
+            make_cocktail(recipes[cocktail], give_hard, give_soft, go_home, cocktail_done)
         else
             if serving_cocktail then
                 print("Already serving cocktail")
