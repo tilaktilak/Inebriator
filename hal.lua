@@ -20,15 +20,15 @@ end
 function give_hard(position, quantity, next_actions)
     print("serve hard " .. position .. " " .. quantity)
     local angle = 0
-    if(position==1) then angle=415 end
-    if(position==2) then angle=490 end
-    if(position==3) then angle=655 end
-    if(position==4) then angle=725 end
-    if(position==5) then angle=895 end
-    if(position==6) then angle=965 end
+    if(position==1) then angle=150 end
+    if(position==2) then angle=400 end
+    if(position==3) then angle=640 end
+    if(position==4) then angle=870 end
+    if(position==5) then angle=1100 end
+    if(position==6) then angle=1350 end
     angle = angle * 4
     set_pos_motor(mt_plate, angle, function()
-        set_pos_motor(mt_lift, 2000, function()
+        set_pos_motor(mt_lift, 4500, function()
             local timer = tmr.create()
             timer:register(quantity*1000, tmr.ALARM_SINGLE, function()
                 set_pos_motor(mt_lift, 0, next_actions)
@@ -50,11 +50,11 @@ function give_soft(position, quantity, next_actions)
     print("serve soft " .. position .. " " .. quantity)
     local angle = 0
     if(position==1) then angle=415 end
-    if(position==2) then angle=490 end
-    if(position==3) then angle=655 end
-    if(position==4) then angle=725 end
-    if(position==5) then angle=895 end
-    if(position==6) then angle=965 end
+    if(position==2) then angle=485 end
+    if(position==3) then angle=650 end
+    if(position==4) then angle=722 end
+    if(position==5) then angle=892 end
+    if(position==6) then angle=966 end
     if(position==7) then angle=1130 end
     if(position==8) then angle=1205 end
     angle = angle * 4
@@ -81,7 +81,7 @@ end
 function init()
     -- mt_lift and mt_plate are global
     -- defined at the end of this file
-    init_seq(mt_plate)
+    init_seq(mt_plate, 0)
     init_seq(mt_lift, 0)
     print("Initialization OK")
 end
@@ -98,7 +98,7 @@ gpio.mode(servo.pin,gpio.OUTPUT)
 gpio.write(servo.pin,gpio.LOW)
 
 print("Init motors")
-dofile("motor.lua")
+dofile("motor.lc")
 
 mt_plate = create_motor()
 init_motor(mt_plate,7,8,500*4,0,1)

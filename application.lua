@@ -1,5 +1,5 @@
 print("Application.lua")
-dofile("hal.lua")
+dofile("hal.lc")
 dofile("glass.lc")
 
 function send_file(client, request, requested_file, next_action)
@@ -107,6 +107,7 @@ function receiver(client,request)
             if serving_cocktail then
                 print("Already serving cocktail")
             else
+				print("Not a cocktail nigga")
             end
         end
     end

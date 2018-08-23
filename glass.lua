@@ -10,17 +10,18 @@ function create_ingredient(name, position, category)
 end
 
 -- SOFT INGREDIENT
-Coca = create_ingredient('Coca',3,'Soft')
-Eau = create_ingredient('Eau',7,'Soft')
-Orange = create_ingredient('Orange',1,'Soft')
+Orange = create_ingredient('Orange',6,'Soft')
 Ananas = create_ingredient('Ananas',2,'Soft')
+Citron = create_ingredient('Citron',3,'Soft')
+Cramberry = create_ingredient('Cramberry',4,'Soft')
+Coca = create_ingredient('Coca',5,'Soft')
 
 -- HARD INGREDIENT
 Vodka = create_ingredient('Vodka',1,'Hard')
 Rhum = create_ingredient('Rhum',2,'Hard')
 Tequila = create_ingredient('Tequila',3,'Hard')
 Grenadine = create_ingredient('Grenadine',4,'Hard')
-Whiskey = create_ingredient('Whiskey',5,'Hard')
+Gin = create_ingredient('Gin',5,'Hard')
 
 Dose = {}
 
@@ -41,22 +42,41 @@ D_Grenadine = create_dose(Grenadine,0.001)
 D_Tequila = create_dose(Tequila,5)
 D_Vodka = create_dose(Vodka,5)
 
+D_Rhum_short = create_dose(Rhum,0.001)
+D_Tequila_short = create_dose(Tequila,0.001)
+D_Vodka_short = create_dose(Vodka,0.001)
+D_Gin_short = create_dose(Gin, 0.001)
+
 D_Coca = create_dose(Coca,4)
 D_Orange = create_dose(Orange,4)
+D_Orange_ushort = create_dose(Orange,1)
 D_Ananas = create_dose(Ananas,4)
+D_Cramberry = create_dose(Cramberry,4)
 D_Orange_short = create_dose(Orange,2)
 D_Ananas_short = create_dose(Ananas,2)
+D_Citron_short = create_dose(Citron,2)
+D_Cramberry_short = create_dose(Cramberry,2)
+D_Citron_ushort = create_dose(Citron,1)
 
 -- recipes map
 recipes = {}
-recipes["Whiskey_Coca"] = {D_Whiskey, D_Coca}
-recipes["Cuba_Libre"] = {D_Rhum, D_Coca}
-recipes["Punch"] = {D_Rhum, D_Orange}
+recipes["Screwdriver"] = {D_Vodka, D_Orange}
+recipes["Bacardi"] = {D_Rhum, D_Grenadine, D_Citron_ushort}
+recipes["Orzech"] = {D_Vodka, D_Ananas}
+recipes["Russian_Sunrise"] = {D_Vodka, D_Grenadine, D_Orange}
+recipes["Bay_Breeze_Tequila"] = {D_Tequila, D_Ananas_short, D_Cramberry}
+recipes["Bay_Breeze_Tequila"] = {D_Vodka, D_Ananas_short, D_Cramberry}
+recipes["Florida_Sunrise"] = {D_Orange, D_Tequila, D_Grenadine}
+recipes["Florida_Sunrise"] = {D_Orange, D_Rhum, D_Grenadine}
+recipes["Bacardi_Blossom"] = {D_Rhum,D_Citron_short, D_Orange_short}
+recipes["Cuba_Libre"] = {D_Rhum, D_Coca, D_Citron_ushort}
+recipes["Punch"] = {D_Rhum, D_Orange, D_Citron_ushort}
 recipes["Tequila_Sunrise"] = {D_Grenadine, D_Tequila, D_Orange}
-recipes["Sex_On_The_Beach"] = {D_Grenadine, D_Vodka, D_Orange}
+recipes["Sex_On_The_Beach"] = {D_Grenadine, D_Vodka, D_Orange_short, D_Cramberry_short}
 recipes["Punch_Planteur"] = {D_Grenadine, D_Rhum, D_Orange}
 recipes["After_Glow"] = {D_Grenadine, D_Orange_short, D_Ananas_short}
 recipes["Orange"] = {D_Orange}
+recipes["Long_Island_Ice_Tea"] = {D_Citron_ushort, D_Coca, D_Rhum_short, D_Tequila_short, D_Gin_short}
 
 function copy_recipe(recipe)
     copy = {}

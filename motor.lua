@@ -102,6 +102,7 @@ end
 function init_seq(motor, sens)
     print("Motor Init")
     local sens = sens or 1 -- First try in sens 1
+    motor.nbstep = 0
     while(gpio.read(motor.FDC) ~= gpio.LOW) do
     --print(sens)
         set_step(motor, 1,sens, 1, motor.speed)
